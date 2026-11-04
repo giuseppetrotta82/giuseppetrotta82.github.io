@@ -650,12 +650,14 @@
   }
 
   var DEVELOP = 1100;
+  var PIXELATE = 1900;   // duration of the pixel effect on photos, a little slower than the old develop
 
   // Image loading effect: a canvas over the image shows it pixelated, with smaller and smaller blocks,
   // then fades out on the real image. The canvas copies border, padding and background of the image.
   var PIXEL_STEPS = [28, 18, 11, 6, 3];
   // While a photo loads, the camera stays on it and the next section waits
   var pins = [];
+  var photos = [], photoBusy = false;   // photos of the page, and whether one is being placed right now
   function pixelate(el, rc, r) {
     var img = /^img$/i.test(el.tagName) ? el : el.querySelector && el.querySelector('img');
     if (!img) { reveal(el, 'develop'); return wait(DEVELOP, r); }
@@ -693,14 +695,14 @@
       }
       frame(PIXEL_STEPS[0]);
       reveal(el, 'fill');
-      var step = DEVELOP / (PIXEL_STEPS.length + 1);
+      var step = PIXELATE / (PIXEL_STEPS.length + 1);
       return PIXEL_STEPS.slice(1).reduce(function (p, block) {
         return p.then(function () { return wait(step, r); }).then(function () { frame(block); });
       }, wait(step, r)).then(function () {
         return wait(step, r);
       }).then(function () {
-        c.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 260 / speed, easing: 'ease-out', fill: 'forwards' });
-        return wait(260, r);
+        c.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 420 / speed, easing: 'ease-out', fill: 'forwards' });
+        return wait(420, r);
       }).then(function () { c.remove(); unpin(); }, function (e) { c.remove(); unpin(); throw e; });
     });
   }
@@ -870,8 +872,11 @@
     return el.id || cls || el.tagName.toLowerCase();
   }
 
+  var layerOf = new Map();
+
   function organize(layers) {
     var byEl = new Map();
+    layerOf = byEl;
     layers.forEach(function (v) { byEl.set(v.el, v); });
     var frameEls = CONFIG.frames ? CONFIG.frames.map(function (s) { return doc.querySelector(s); }).filter(Boolean) : autoFrames();
     var frames = [];
@@ -892,13 +897,28 @@
     components = components.filter(function (c) { return c.items.length; });
     components.forEach(function (c) {
       c.rc = rect(c.el);
-      c.items.sort(function (a, b) { return a.depth - b.depth || a.rc.y - b.rc.y || a.rc.x - b.rc.x; });
+      // Card by card from the top (each direct child of the component), then by depth inside the card,
+      // so the build moves down the page and the camera never has to go back
+      var groupOf = function (v) {
+        var g = v.el;
+        while (g.parentElement && g.parentElement !== c.el && g !== c.el) g = g.parentElement;
+        var gr = g === c.el ? { y: -1, x: -1 } : rect(g);
+        return { y: Math.round(gr.y), x: Math.round(gr.x), self: g === c.el };
+      };
+      c.items.forEach(function (v) { v.group = groupOf(v); });
+      c.items.sort(function (a, b) {
+        if (a.group.self !== b.group.self) return a.group.self ? -1 : 1;
+        return a.group.y - b.group.y || a.group.x - b.group.x || a.depth - b.depth || a.rc.y - b.rc.y || a.rc.x - b.rc.x;
+      });
       findCopies(c);
       for (var a = c.el; a; a = a.parentElement) {
         var v = byEl.get(a);
         if (v && v.frame) { c.frame = v; break; }
       }
     });
+    // Photos go in from the top of the page down, one after the other
+    photos = layers.filter(function (v) { return v.visual && isImage(v.el); })
+      .sort(function (a, b) { return a.rc.y - b.rc.y || a.rc.x - b.rc.x; });
     wrapTexts(layers, byEl);
     return { frames: frames, components: components, silent: silent };
   }
@@ -922,7 +942,32 @@
     updateBar();
   }
 
+  // A photo goes in only after the boxes that contain it are built
+  function boxesReady(v, comp) {
+    for (var a = v.el.parentElement; a; a = a.parentElement) {
+      var w = layerOf.get(a);
+      if (w && w.visual && !w.built && comp.items.indexOf(w) >= 0) return false;
+    }
+    return true;
+  }
+
   function build(i, v, comp, r) {
+    var photo = v.visual && photos.indexOf(v) >= 0;
+    var nextPhoto = photos.filter(function (w) { return !w.built; })[0];
+    if (photo && (nextPhoto !== v || !boxesReady(v, comp) || photoBusy)) {
+      // One photo at a time, and only inside a finished box. No idle cursor standing on the page while it waits
+      cursors[i].style.opacity = '0';
+      delete cursors[i].dataset.onStage;
+      return wait(60, r).then(function () { return build(i, v, comp, r); });
+    }
+    if (photo) {
+      photoBusy = true;
+      return buildNow(i, v, comp, r).then(function () { photoBusy = false; }, function (e) { photoBusy = false; throw e; });
+    }
+    return buildNow(i, v, comp, r);
+  }
+
+  function buildNow(i, v, comp, r) {
     var rc = rect(v.el), bits = [];
     follow(rc);
     move(i, rc.x, rc.y, rand(160, 240));
@@ -1104,7 +1149,9 @@
       return p.then(function () {
         all.push(buildComponent(comp, r));
         return (function hold() {
-          if (!pins.length && (comp.finished || comp.done >= comp.size * .34)) return null;
+          // The next section waits for every photo of this one, so the camera never leaves a photo behind
+          var photosLeft = comp.items.some(function (v) { return !v.built && v.visual && isImage(v.el); });
+          if (!pins.length && !photosLeft && (comp.finished || comp.done >= comp.size * .34)) return null;
           return wait(50, r).then(hold);
         })();
       });
@@ -1126,7 +1173,11 @@
       before = now;
       if (!paused) {
         var max = doc.documentElement.scrollHeight - win.innerHeight;
-        var target = clamp(pins.length ? Math.min.apply(null, pins) : camera.y, 0, max), y = win.scrollY;
+        // The camera never goes past a photo that is not in place yet
+        var want = camera.y;
+        photos.forEach(function (v) { if (!v.built) want = Math.min(want, v.rc.y + v.rc.h / 2 - H * .5); });
+        var target = clamp(want, 0, max), y = win.scrollY;
+        if (target < y && !camera.back) target = y;   // never scroll back up while building
         if (Math.abs(target - y) > .5) win.scrollTo(0, y + (target - y) * Math.min(1, dt * speed * .0025));
       }
       requestAnimationFrame(step);
@@ -1240,6 +1291,8 @@
     running = false;
     camera = { y: 0, on: false };
     pins = [];
+    photos = [];
+    photoBusy = false;
     setView();
     setTool('');
     setAgentsLabel(T.ready);
@@ -1287,6 +1340,7 @@
       cursors.forEach(function (c) { c.style.opacity = '0'; });
       setTool('');
       camera.y = 0;
+      camera.back = true;   // at the end only: back to the top before the animation closes
       return wait(1400, r);
     }).then(function () {
       camera.on = false;
