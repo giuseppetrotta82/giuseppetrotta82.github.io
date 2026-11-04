@@ -238,6 +238,8 @@
     prepare: function (doc) {
       // Il link "Vai al contenuto" e il campo anti-bot sono fuori schermo: non vanno costruiti
       doc.querySelectorAll('.skip, .trap').forEach(function (el) { el.remove(); });
+      // Le foto devono essere già caricate per l'effetto pixel
+      doc.querySelectorAll('img[loading="lazy"]').forEach(function (img) { img.loading = 'eager'; });
     }
   };
 </script>
@@ -649,6 +651,60 @@
 
   var DEVELOP = 1100;
 
+  // Image loading effect: a canvas over the image shows it pixelated, with smaller and smaller blocks,
+  // then fades out on the real image. The canvas copies border, padding and background of the image.
+  var PIXEL_STEPS = [28, 18, 11, 6, 3];
+  // While a photo loads, the camera stays on it and the next section waits
+  var pins = [];
+  function pixelate(el, rc, r) {
+    var img = /^img$/i.test(el.tagName) ? el : el.querySelector && el.querySelector('img');
+    if (!img) { reveal(el, 'develop'); return wait(DEVELOP, r); }
+    var ready = img.complete && img.naturalWidth ? Promise.resolve()
+      : img.decode ? img.decode().catch(function () {}) : Promise.resolve();
+    return ready.then(function () {
+      if (r !== run) throw new Stop();
+      var cs = win.getComputedStyle(img);
+      var w = Math.max(1, Math.round(rc.w)), h = Math.max(1, Math.round(rc.h));
+      var c = doc.createElement('canvas');
+      c.width = w; c.height = h;
+      c.style.cssText = 'position:absolute;left:' + rc.x + 'px;top:' + rc.y + 'px;width:' + rc.w + 'px;height:' + rc.h
+        + 'px;border-radius:' + cs.borderRadius + ';pointer-events:none;z-index:1';
+      overlay.appendChild(c);
+      var pin = rc.y + rc.h / 2 - H * .5;
+      pins.push(pin);
+      var unpin = function () { var k = pins.indexOf(pin); if (k >= 0) pins.splice(k, 1); };
+      var ctx = c.getContext('2d');
+      var px = function (k) { return parseFloat(cs[k]) || 0; };
+      var bx = px('borderLeftWidth'), by = px('borderTopWidth');
+      var ix = bx + px('paddingLeft'), iy = by + px('paddingTop');
+      var iw = w - ix - px('borderRightWidth') - px('paddingRight'), ih = h - iy - px('borderBottomWidth') - px('paddingBottom');
+      var bg = cs.backgroundColor, clear = /rgba\(0, 0, 0, 0\)|transparent/.test(bg);
+      var small = doc.createElement('canvas'), sctx = small.getContext('2d');
+      function frame(block) {
+        small.width = Math.max(1, Math.round(iw / block));
+        small.height = Math.max(1, Math.round(ih / block));
+        sctx.drawImage(img, 0, 0, small.width, small.height);
+        ctx.clearRect(0, 0, w, h);
+        if (bx || by) { ctx.fillStyle = cs.borderTopColor; ctx.fillRect(0, 0, w, h); }
+        ctx.fillStyle = clear ? '#0a0d1a' : bg;
+        ctx.fillRect(bx, by, w - bx - px('borderRightWidth'), h - by - px('borderBottomWidth'));
+        ctx.imageSmoothingEnabled = false;
+        ctx.drawImage(small, ix, iy, iw, ih);
+      }
+      frame(PIXEL_STEPS[0]);
+      reveal(el, 'fill');
+      var step = DEVELOP / (PIXEL_STEPS.length + 1);
+      return PIXEL_STEPS.slice(1).reduce(function (p, block) {
+        return p.then(function () { return wait(step, r); }).then(function () { frame(block); });
+      }, wait(step, r)).then(function () {
+        return wait(step, r);
+      }).then(function () {
+        c.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 260 / speed, easing: 'ease-out', fill: 'forwards' });
+        return wait(260, r);
+      }).then(function () { c.remove(); unpin(); }, function (e) { c.remove(); unpin(); throw e; });
+    });
+  }
+
   function isImage(el) {
     if (/^(img|picture|video|canvas)$/i.test(el.tagName)) return true;
     var r = el.getBoundingClientRect();
@@ -905,13 +961,8 @@
         return wait(rand(110, 200), r).then(function () {
           if (glitch) fade(glitch, r);
           if (image) {
-            // A scan line runs down the image while it develops
-            var scan = layer('br-scan', rc.x, rc.y);
-            scan.style.width = rc.w + 'px';
-            bits.push(scan);
-            reveal(v.el, 'develop');
-            scan.animate([{ top: rc.y + 'px' }, { top: rc.y + rc.h + 'px' }], { duration: DEVELOP * .55 / speed, easing: 'ease-out', fill: 'forwards' });
-            return wait(DEVELOP, r).then(function () { return v.units ? type(i, v, r) : null; });
+            // The photo loads like a slow download: big pixels first, then sharper and sharper
+            return pixelate(v.el, rc, r).then(function () { return v.units ? type(i, v, r) : null; });
           }
           reveal(v.el, bar ? 'grow' : 'fill');
           return v.units ? type(i, v, r) : wait(bar ? 650 : rand(60, 140), r);
@@ -1053,7 +1104,7 @@
       return p.then(function () {
         all.push(buildComponent(comp, r));
         return (function hold() {
-          if (comp.finished || comp.done >= comp.size * .34) return null;
+          if (!pins.length && (comp.finished || comp.done >= comp.size * .34)) return null;
           return wait(50, r).then(hold);
         })();
       });
@@ -1075,7 +1126,7 @@
       before = now;
       if (!paused) {
         var max = doc.documentElement.scrollHeight - win.innerHeight;
-        var target = clamp(camera.y, 0, max), y = win.scrollY;
+        var target = clamp(pins.length ? Math.min.apply(null, pins) : camera.y, 0, max), y = win.scrollY;
         if (Math.abs(target - y) > .5) win.scrollTo(0, y + (target - y) * Math.min(1, dt * speed * .0025));
       }
       requestAnimationFrame(step);
@@ -1188,6 +1239,7 @@
     free = [];
     running = false;
     camera = { y: 0, on: false };
+    pins = [];
     setView();
     setTool('');
     setAgentsLabel(T.ready);
