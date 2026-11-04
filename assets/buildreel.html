@@ -650,7 +650,7 @@
   }
 
   var DEVELOP = 1100;
-  var PIXELATE = 1900;   // duration of the pixel effect on photos, a little slower than the old develop
+  var PIXELATE = 1500;   // duration of the pixel effect on photos
 
   // Image loading effect: a canvas over the image shows it pixelated, with smaller and smaller blocks,
   // then fades out on the real image. The canvas copies border, padding and background of the image.
@@ -701,8 +701,8 @@
       }, wait(step, r)).then(function () {
         return wait(step, r);
       }).then(function () {
-        c.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 420 / speed, easing: 'ease-out', fill: 'forwards' });
-        return wait(420, r);
+        c.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 340 / speed, easing: 'ease-out', fill: 'forwards' });
+        return wait(340, r);
       }).then(function () { c.remove(); unpin(); }, function (e) { c.remove(); unpin(); throw e; });
     });
   }
