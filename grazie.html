@@ -8,6 +8,19 @@
 <meta name="theme-color" content="#0f1324">
 <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="style.css">
+<script>
+  // Statistiche anonime con Umami, senza cookie. Solo sul sito pubblicato e mai nella copia
+  // della pagina dentro l'animazione BuildReel, che altrimenti conterebbe ogni visita due volte.
+  if (window.self === window.top) {
+    var u = document.createElement('script');
+    u.defer = true;
+    u.src = 'https://cloud.umami.is/script.js';
+    u.setAttribute('data-website-id', '0dba3a65-884b-463e-ad48-1e24ae9fd32e');
+    u.setAttribute('data-domains', 'giuseppetrotta82.github.io');
+    u.setAttribute('data-exclude-search', 'true');
+    document.head.appendChild(u);
+  }
+</script>
 </head>
 <body>
 <header class="top"><div class="wrap">

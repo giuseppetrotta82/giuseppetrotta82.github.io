@@ -14,6 +14,19 @@
 <link rel="preload" href="fonts/unbounded-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/figtree-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="style.css">
+<script>
+  // Statistiche anonime con Umami, senza cookie. Solo sul sito pubblicato e mai nella copia
+  // della pagina dentro l'animazione BuildReel, che altrimenti conterebbe ogni visita due volte.
+  if (window.self === window.top) {
+    var u = document.createElement('script');
+    u.defer = true;
+    u.src = 'https://cloud.umami.is/script.js';
+    u.setAttribute('data-website-id', '0dba3a65-884b-463e-ad48-1e24ae9fd32e');
+    u.setAttribute('data-domains', 'giuseppetrotta82.github.io');
+    u.setAttribute('data-exclude-search', 'true');
+    document.head.appendChild(u);
+  }
+</script>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -42,7 +55,7 @@
     box.className = 'br-intro';
     box.innerHTML = '<iframe src="assets/buildreel.html" title="Animazione simulata: costruzione della pagina" tabindex="-1" aria-hidden="true"></iframe>'
       + '<span class="br-intro-note">Animazione simulata</span>'
-      + '<button type="button" class="br-intro-skip">Salta l’animazione</button>';
+      + '<button type="button" class="br-intro-skip" data-umami-event="Animazione saltata">Salta l’animazione</button>';
     document.body.appendChild(box);
     document.documentElement.classList.add('intro-on');
     var closed = false;
@@ -57,7 +70,10 @@
     box.querySelector('.br-intro-skip').addEventListener('click', close);
     addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
     addEventListener('message', function (e) {
-      if (e.origin === location.origin && e.data === 'buildreel:done') setTimeout(close, 900);
+      if (e.origin === location.origin && e.data === 'buildreel:done') {
+        if (window.umami) umami.track('Animazione vista fino alla fine');
+        setTimeout(close, 900);
+      }
     });
     setTimeout(close, 60000);
   })();
@@ -67,7 +83,7 @@
 <header class="top"><div class="wrap">
   <a class="logo" href="./">giuseppe<span>trotta</span></a>
   <nav aria-label="Sezioni"><a href="#chi-sono">Chi sono</a><a href="#lavori">Lavori</a><a href="#servizi">Servizi</a><a href="#domande">Domande</a></nav>
-  <a class="btn btn-sun" href="#contatti">Parliamone</a>
+  <a class="btn btn-sun" href="#contatti" data-umami-event="Clic Parliamone in testata">Parliamone</a>
 </div></header>
 
 <main id="contenuto">
@@ -77,8 +93,8 @@
     <h1>App Android e web app con <em>l'AI dentro.</em></h1>
     <p class="lead">Sono Giuseppe Trotta. Prendo un lavoro che in azienda porta via ore, come preventivi, rapporti di intervento o documenti, e lo trasformo in un'app che lo fa al posto vostro. Seguo ogni fase di persona, dalla prima idea alla pubblicazione sul Play Store.</p>
     <div class="actions">
-      <a class="btn btn-sun" href="#contatti">Raccontami la tua idea →</a>
-      <a class="btn" href="#lavori">Guarda i lavori</a>
+      <a class="btn btn-sun" href="#contatti" data-umami-event="Clic Raccontami la tua idea">Raccontami la tua idea →</a>
+      <a class="btn" href="#lavori" data-umami-event="Clic Guarda i lavori">Guarda i lavori</a>
     </div>
   </div>
   <div class="ticker">
@@ -144,7 +160,7 @@
     <div class="service"><h3>Web app e gestionali</h3><p>Strumenti che si aprono dal browser, su PC, tablet e telefono, collegati ai tuoi file e ai tuoi dati.</p></div>
     <div class="service"><h3>AI nei processi</h3><p>Assistenti che leggono documenti, preparano bozze e rispondono sulle procedure aziendali.</p></div>
   </div>
-  <a class="offer" href="#contatti">
+  <a class="offer" href="#contatti" data-umami-event="Clic chiamata conoscitiva">
     <div><strong>Vuoi capire se la tua idea sta in piedi?</strong><span>Una chiamata conoscitiva di 30 minuti, gratuita e senza impegno.</span></div>
     <span class="arrow" aria-hidden="true">→</span>
   </a>
@@ -183,7 +199,7 @@
     <label class="full" for="idea">Cosa vorresti che l'app facesse?<textarea id="idea" name="idea" maxlength="1500" placeholder="Es. compilare i rapporti di intervento a voce" required></textarea></label>
     <input class="trap" type="checkbox" name="botcheck" tabindex="-1" autocomplete="off" aria-hidden="true">
     <div class="actions full">
-      <button class="btn btn-sun" type="submit">Invia la richiesta</button>
+      <button class="btn btn-sun" type="submit" data-umami-event="Clic Invia la richiesta">Invia la richiesta</button>
     </div>
     <p class="fine full">Ti rispondo io entro un giorno lavorativo. Uso questi dati solo per risponderti: <a href="privacy.html">informativa privacy</a>.</p>
   </form>
@@ -198,8 +214,8 @@
   <div class="foot">
     <div><b>Giuseppe Trotta</b><span>App Android, web app e intelligenza artificiale per le aziende.</span></div>
     <div><b>Servizi</b><a href="#servizi">App Android</a><a href="#servizi">Web app</a><a href="#servizi">AI nei processi</a></div>
-    <div><b>Contatti</b><a href="#contatti">Modulo di contatto</a><a href="https://www.linkedin.com/in/giuseppe-trotta-0851b6442" rel="noopener">LinkedIn</a></div>
-    <div><b>Dove lavoro</b><span>Salerno e provincia</span><span>In remoto in tutta Italia</span><a href="./#costruzione" id="rivedi">Rivedi l'animazione</a></div>
+    <div><b>Contatti</b><a href="#contatti">Modulo di contatto</a><a href="https://www.linkedin.com/in/giuseppe-trotta-0851b6442" rel="noopener" data-umami-event="Clic LinkedIn">LinkedIn</a></div>
+    <div><b>Dove lavoro</b><span>Salerno e provincia</span><span>In remoto in tutta Italia</span><a href="./#costruzione" id="rivedi" data-umami-event="Rivedi animazione">Rivedi l'animazione</a></div>
   </div>
   <div class="legal"><span>© 2026 Giuseppe Trotta</span><span><a href="privacy.html">Privacy e cookie</a></span></div>
 </div></footer>
