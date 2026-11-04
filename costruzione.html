@@ -1,0 +1,1273 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Come nasce questa pagina · Giuseppe Trotta</title>
+  <meta name="robots" content="noindex">
+  <meta name="description" content="Animazione dimostrativa: la landing di Giuseppe Trotta costruita da zero da un gruppo di agenti AI simulati.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230b0f14'/%3E%3Cpath d='M8 7l7 18 2.6-7.4L25 15z' fill='%2360a5fa' stroke='%23fff' stroke-width='1.5' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --panel: #111823;
+      --border: #223041;
+      --text: #e6edf3;
+      --muted: #8b9bb0;
+      --blue: #3b82f6;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body {
+      background: radial-gradient(1200px 600px at 70% -10%, #1b2a44 0, transparent 60%), var(--bg);
+      color: var(--text);
+      font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      overflow: hidden;
+    }
+    .app { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); height: 100vh; height: 100dvh; }
+
+    /* Prompt (details mode only) */
+    .prompt { display: none; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    .details .prompt { display: flex; }
+    .logo { flex: none; width: 26px; height: 26px; border-radius: 7px; background: conic-gradient(from 200deg, #c084fc, #38bdf8, #4ade80, #facc15, #fb923c, #f472b6, #c084fc); }
+    .prompt-box {
+      flex: 1;
+      min-width: 0;
+      padding: 9px 12px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: #cfe0f5;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .caret { display: inline-block; width: 2px; height: 1em; margin-left: 1px; vertical-align: -2px; background: var(--blue); animation: blink 1s steps(1) infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+    #send { flex: none; width: 36px; height: 36px; border: 0; border-radius: 10px; background: #1b2532; color: var(--muted); font-size: 18px; transition: background-color .2s, color .2s; }
+    #send.pressed { background: var(--blue); color: #fff; }
+
+    /* Stage */
+    .stage { display: grid; grid-row: 2; grid-template-columns: minmax(0, 1fr); min-height: 0; }
+    .details .stage { grid-template-columns: minmax(0, 1fr) 380px; }
+    .preview { position: relative; display: grid; place-items: center; min-width: 0; min-height: 0; padding: 14px 14px 66px; }
+    .device { background: #0f1620; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; box-shadow: 0 30px 80px rgba(0, 0, 0, .5); }
+    .chrome { display: flex; align-items: center; gap: 10px; height: 34px; padding: 0 12px; background: #141d29; border-bottom: 1px solid var(--border); }
+    .lights i { display: inline-block; width: 10px; height: 10px; margin-right: 5px; border-radius: 50%; background: #ff5f57; }
+    .lights i:nth-child(2) { background: #febc2e; }
+    .lights i:nth-child(3) { background: #28c840; }
+    .url { flex: 1; padding: 4px 10px; border-radius: 6px; background: #0b121b; color: var(--muted); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .screen { position: relative; overflow: hidden; background: #fff; }
+    .screen iframe { position: absolute; left: 0; top: 0; border: 0; transform-origin: 0 0; background: #fff; }
+    .device.mobile { padding: 10px; border: 2px solid #2a3646; border-radius: 34px; background: #05080c; }
+    .device.mobile .chrome { display: none; }
+    .device.mobile .screen { border-radius: 24px; }
+
+    /* Side panel (details mode only) */
+    .panel { display: none; flex-direction: column; gap: 12px; min-width: 0; min-height: 0; padding: 16px 16px 76px; border-left: 1px solid var(--border); background: rgba(10, 15, 22, .6); }
+    .details .panel { display: flex; }
+    .label { margin: 0 0 6px; color: var(--muted); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+    .swarm { display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px; }
+    .swarm span { aspect-ratio: 1; border-radius: 50%; background: var(--c); opacity: .35; transition: opacity .2s, transform .2s; }
+    .swarm span.working { opacity: 1; transform: scale(1.15); }
+
+    .editor { display: flex; flex-direction: column; flex: 1; min-height: 120px; background: #0a1018; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .tab { display: flex; justify-content: space-between; gap: 8px; padding: 7px 12px; background: #121a25; border-bottom: 1px solid var(--border); color: var(--muted); font: 12px ui-monospace, Consolas, monospace; }
+    #code {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      justify-content: flex-end;
+      margin: 0;
+      padding: 10px 12px;
+      overflow: hidden;
+      color: #c9d6e3;
+      font: 12px/1.55 "Cascadia Code", Consolas, ui-monospace, monospace;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .line { display: grid; grid-template-columns: 30px 1fr; }
+    .line .n { padding-right: 10px; color: #3d4b5c; text-align: right; }
+    .k, .a, .s { font-style: normal; }
+    .k { color: #7cc4ff; }
+    .a { color: #f5c26b; }
+    .s { color: #9be28f; }
+    .cur { display: inline-block; width: 7px; height: 1.1em; vertical-align: -3px; background: #7cc4ff; animation: blink 1s steps(1) infinite; }
+
+    .log { display: flex; flex-direction: column; justify-content: flex-end; gap: 3px; max-height: 170px; margin: 0; padding: 0; overflow: hidden; list-style: none; font-size: 12.5px; }
+    .log li { color: var(--muted); animation: enter .3s both; }
+    .log b { color: var(--c); }
+    .log .ok { color: #4ade80; }
+    .log .ko { color: #f87171; }
+    @keyframes enter { from { opacity: 0; transform: translateY(6px); } }
+
+    /* Bottom bar */
+    .bar {
+      position: fixed;
+      left: 50%;
+      bottom: 14px;
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      max-width: calc(100vw - 16px);
+      padding: 6px 8px 6px 12px;
+      background: rgba(13, 18, 26, .94);
+      border: 1px solid #2a3646;
+      border-radius: 999px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, .45);
+      white-space: nowrap;
+      transform: translateX(-50%);
+      transition: opacity .25s, transform .25s;
+      backdrop-filter: blur(8px);
+    }
+    .bar.hidden { opacity: 0; pointer-events: none; transform: translate(-50%, 12px); }
+    .faces { display: flex; }
+    .face { width: 14px; height: 14px; margin-left: -5px; border: 2px solid #0d121a; border-radius: 50%; background: var(--c); }
+    .face:first-child { margin-left: 0; }
+    .num { font-weight: 700; font-variant-numeric: tabular-nums; }
+    .muted { color: var(--muted); }
+    .progress { width: 90px; height: 3px; overflow: hidden; border-radius: 2px; background: #223041; }
+    .progress i { display: block; width: 0; height: 100%; background: linear-gradient(90deg, #3b82f6, #4ade80); transition: width .2s; }
+    .tool { min-width: 6.5em; color: var(--muted); font-size: 12px; }
+    .tool:not(:empty)::before { content: ""; display: inline-block; width: 6px; height: 6px; margin-right: 6px; border-radius: 50%; background: #60a5fa; vertical-align: 1px; }
+    .bar button { padding: 4px 9px; border: 1px solid #2a3646; border-radius: 999px; background: #1b2532; color: var(--text); font: 600 12px system-ui, sans-serif; cursor: pointer; }
+    .bar button:hover { background: #243244; }
+    .bar .close { padding: 4px 7px; border-color: transparent; background: none; color: var(--muted); }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      z-index: 6;
+      max-width: calc(100vw - 32px);
+      padding: 22px 26px;
+      background: rgba(13, 18, 26, .95);
+      border: 1px solid #2a3646;
+      border-radius: 16px;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, .6);
+      text-align: center;
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, -50%) scale(.9);
+      transition: opacity .35s, transform .35s;
+    }
+    .toast.show { opacity: 1; pointer-events: auto; transform: translate(-50%, -50%); }
+    .toast h2 { margin: 0 0 6px; font-size: 20px; }
+    .toast p { margin: 0; color: var(--muted); }
+
+    @media (orientation: portrait), (max-width: 820px) {
+      .details .stage { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; }
+      .preview { padding: 10px 10px 58px; }
+      .details .preview { padding-bottom: 8px; }
+      .panel { gap: 8px; padding: 10px 12px 62px; border-top: 1px solid var(--border); border-left: 0; }
+      .panel .label, .log { display: none; }
+      .swarm { grid-template-columns: repeat(15, 1fr); gap: 4px; }
+      .editor { flex: none; height: 96px; min-height: 0; }
+      .bar { gap: 7px; padding-left: 10px; font-size: 12px; }
+      .bar button { padding: 3px 7px; font-size: 11px; }
+      .bar .optional { display: none; }
+    }
+  </style>
+</head>
+<body>
+<a class="br-note" href="./">Animazione simulata · ← Torna al sito</a>
+<style>
+  .br-note { position: fixed; top: calc(8px + env(safe-area-inset-top, 0px)); left: 50%; transform: translateX(-50%); z-index: 50;
+    font: 500 12px/1.3 system-ui, sans-serif; color: #cbd5e1; background: rgba(11,15,20,.82); border: 1px solid #243041;
+    padding: 6px 12px; border-radius: 999px; text-decoration: none; white-space: nowrap; max-width: calc(100% - 24px); overflow: hidden; text-overflow: ellipsis; }
+  .br-note:hover { color: #fff; }
+</style>
+<div class="app" id="app">
+  <header class="prompt">
+    <span class="logo" aria-hidden="true"></span>
+    <div class="prompt-box"><span id="prompt"></span><span class="caret"></span></div>
+    <button id="send" type="button" tabindex="-1" aria-hidden="true">&#8629;</button>
+  </header>
+
+  <main class="stage">
+    <section class="preview" id="preview">
+      <div class="device" id="device">
+        <div class="chrome"><span class="lights"><i></i><i></i><i></i></span><div class="url" id="url"></div></div>
+        <div class="screen" id="screen"><iframe id="page" title="Page under construction"></iframe></div>
+      </div>
+    </section>
+    <aside class="panel">
+      <div>
+        <p class="label" id="t-agents-title">Agents</p>
+        <div class="swarm" id="swarm"></div>
+      </div>
+      <div class="editor">
+        <div class="tab"><span id="file">index.html</span><span id="who"></span></div>
+        <pre id="code"></pre>
+      </div>
+      <ol class="log" id="log"></ol>
+    </aside>
+  </main>
+
+  <div class="bar" id="bar">
+    <span class="faces" id="faces"></span>
+    <span><span class="num" id="n-agents">0</span> <span class="muted" id="agents-label">agents</span></span>
+    <span><span class="num" id="n-layers">0</span><span class="muted"> / <span id="total-layers">0</span> <span id="layers-label">layers</span></span></span>
+    <span class="tool optional" id="tool"></span>
+    <span class="progress optional"><i id="progress"></i></span>
+    <span class="num muted optional" id="clock">00:00</span>
+    <button id="replay" type="button">Replay</button>
+    <button id="speed" type="button">1x</button>
+    <button id="view" type="button" class="optional">Mobile</button>
+    <button id="details" type="button" class="optional">Details</button>
+    <button id="pause" type="button" aria-label="Pause">&#10074;&#10074;</button>
+    <button id="close" type="button" class="close" aria-label="Hide the bar (H shows it again)">&#10005;</button>
+  </div>
+
+  <div class="toast" id="toast" role="status"></div>
+</div>
+
+<script>
+  // Configurazione per la landing di Giuseppe Trotta (pubblicata accanto a index.html)
+  window.BUILDREEL = {
+    page: 'index.html',
+    url: 'giuseppetrotta82.github.io',
+    lang: 'it',
+    tempo: 1.3,   // ritmo base di 1x (predefinito 1.6): più basso = più lento
+    agents: { desktop: 30, mobile: 20 },
+    prepare: function (doc) {
+      // Il link "Vai al contenuto" e il campo anti-bot sono fuori schermo: non vanno costruiti
+      doc.querySelectorAll('.skip, .trap').forEach(function (el) { el.remove(); });
+    }
+  };
+</script>
+<script>
+/*
+ * BuildReel: a simulated swarm of AI agents builds an existing web page from scratch.
+ * It is a staged animation: no real agent runs. It reads the page in the iframe, hides every
+ * element, then "builds" it back: boxes dragged like in a design tool, text typed letter by
+ * letter, section backgrounds wiped in. At the end it runs a few real checks on the page.
+ *
+ * Optional configuration: define window.BUILDREEL before this script, or use URL parameters
+ * (?page=, ?view=, ?speed=, ?loop=1, ?details=1, ?lang=, ?url=, ?prompt=).
+ */
+(function () {
+  'use strict';
+
+  var DEFAULTS = {
+    page: 'example/index.html',     // page to build, same origin as this file
+    url: '',                        // text in the fake address bar (default: the page path)
+    prompt: '',                     // text typed in details mode (default: per language)
+    view: '',                       // 'desktop' | 'mobile' (default: from window orientation)
+    speed: 1,                       // 1, 2 or 4
+    tempo: 1.6,                     // base pace: how much faster than the original timings 1x runs
+    loop: false,                    // start again 4 s after the end
+    details: false,                 // show prompt, code and log
+    lang: '',                       // 'en' | 'it' (default: from the browser)
+    agents: { desktop: 30, mobile: 20 },
+    frames: null,                   // selectors of section backgrounds; null = automatic
+    components: null,               // selectors of components, in build order; null = automatic
+    holdUntilEnd: [],               // selectors kept hidden until the end (fixed bars, cookie notices…)
+    prepare: null                   // function (doc) run before building, e.g. to disable the page's own reveal effects
+  };
+
+  var TEXT = {
+    en: {
+      ready: 'agents ready', agents: 'agents', agent: 'agent', layers: 'layers', checks: 'checks',
+      replay: 'Replay', details: 'Details', desktop: 'Desktop', mobile: 'Mobile', agentsTitle: 'Agents',
+      prompt: 'Build this page from scratch',
+      plan: function (s, c, l) { return ['# Build plan', '- ' + s + ' sections', '- ' + c + ' components', '- ' + l + ' layers', '- check the result at 320 px']; },
+      director: 'Director', checker: 'Checker',
+      tools: { frame: 'Frame', rect: 'Rectangle', text: 'Text', image: 'Image', copy: 'Duplicate' },
+      acts: { frame: 'layout', rect: 'drawing', text: 'writing', image: 'placing image', copy: 'duplicating' },
+      started: function (n, l, c) { return n + ' agents, ' + l + ' layers, ' + c + ' components'; },
+      component: function (name, n) { return name + ': ' + n + (n === 1 ? ' layer' : ' layers'); },
+      done: 'Page ready in ',
+      check: ['No horizontal overflow at 320 px', 'All images loaded', 'Exactly one main heading (H1)', 'No cookies and no third-party requests', 'Every image has alternative text'],
+      unavailable: 'Preview not available',
+      blocked: 'The browser blocks the preview when this file is opened from disk. Serve the folder instead, for example: python -m http.server 8000',
+      missing: 'Page not found: ',
+      empty: 'The page has no visible elements to build.'
+    },
+    it: {
+      ready: 'agenti pronti', agents: 'agenti', agent: 'agente', layers: 'livelli', checks: 'verifica',
+      replay: 'Rivedi', details: 'Dettagli', desktop: 'Desktop', mobile: 'Mobile', agentsTitle: 'Agenti',
+      prompt: 'Costruisci questa pagina da zero',
+      plan: function (s, c, l) { return ['# Piano', '- ' + s + ' sezioni', '- ' + c + ' componenti', '- ' + l + ' livelli', '- verifica finale a 320 px']; },
+      director: 'Regista', checker: 'Verifica',
+      tools: { frame: 'Cornice', rect: 'Rettangolo', text: 'Testo', image: 'Immagine', copy: 'Duplica' },
+      acts: { frame: 'layout', rect: 'disegna', text: 'scrive', image: 'immagine', copy: 'duplica' },
+      started: function (n, l, c) { return n + ' agenti, ' + l + ' livelli, ' + c + ' componenti'; },
+      component: function (name, n) { return name + ': ' + n + (n === 1 ? ' livello' : ' livelli'); },
+      done: 'Pagina pronta in ',
+      check: ['Nessuno sforamento orizzontale a 320 px', 'Immagini caricate', 'Un solo titolo principale (H1)', 'Nessun cookie e nessuna richiesta a terzi', 'Ogni immagine ha il testo alternativo'],
+      unavailable: 'Anteprima non disponibile',
+      blocked: 'Il browser blocca l\'anteprima quando il file è aperto dal disco. Servi la cartella, per esempio: python -m http.server 8000',
+      missing: 'Pagina non trovata: ',
+      empty: 'La pagina non ha elementi visibili da costruire.'
+    }
+  };
+
+  var NOISE_COLORS = ['#1e3a8a', '#2563eb', '#60a5fa', '#22c55e', '#facc15', '#fb923c', '#f472b6', '#ef4444', '#94a3b8'];
+
+  var FRAME_STYLE = [
+    '.br-x{visibility:hidden!important}',
+    '.br-c{visibility:hidden}',
+    '.br-c.br-v{visibility:visible}',
+    '.br-caret{display:inline-block;width:2px;height:1em;margin-right:-2px;vertical-align:-.12em;background:#2563eb;visibility:visible;animation:brblink .7s steps(1) infinite}',
+    '@keyframes brblink{50%{opacity:0}}',
+    '#br-overlay{position:absolute;left:0;top:0;width:100%;pointer-events:none;z-index:2147483647;--k:1}',
+    '#br-overlay>*{position:absolute}',
+    '.br-box{border:calc(1px*var(--k)) solid rgba(37,99,235,.9);background:rgba(59,130,246,.06);transition:opacity .3s}',
+    '.br-box.guide{border-style:dashed;border-color:rgba(100,116,139,.6);background:none}',
+    '.br-handle{width:calc(6px*var(--k));height:calc(6px*var(--k));background:#fff;border:calc(1px*var(--k)) solid #2563eb;transform:translate(-50%,-50%);transition:opacity .3s}',
+    '.br-noise{image-rendering:pixelated;opacity:.75;background-size:calc(36px*var(--k)) calc(36px*var(--k));animation:brnoise .1s steps(1) infinite;transition:opacity .12s}',
+    '@keyframes brnoise{0%{background-position:0 0}33%{background-position:calc(13px*var(--k)) calc(7px*var(--k))}66%{background-position:calc(-9px*var(--k)) calc(15px*var(--k))}}',
+    '.br-chip{padding:calc(2px*var(--k)) calc(4px*var(--k));border-radius:calc(2px*var(--k));background:#2563eb;color:#fff;font:600 calc(9px*var(--k))/1 ui-monospace,Consolas,monospace;white-space:nowrap;transition:opacity .3s}',
+    '.br-chip.below{transform:translate(-50%,calc(3px*var(--k)))}',
+    '.br-chip.above{transform:translate(-100%,calc(-100% - 3px*var(--k)))}',
+    '.br-chip.red{background:#ef4444}',
+    '.br-cursor{left:0;top:0;will-change:transform;transition-property:transform,opacity;transition-timing-function:cubic-bezier(.3,.7,.2,1)}',
+    '.br-cursor svg{display:block;width:calc(20px*var(--k));height:calc(20px*var(--k));filter:drop-shadow(0 1px 2px rgba(0,0,0,.4))}',
+    '.br-tag b{font-weight:500;opacity:.9}',
+    '.br-tag{position:absolute;left:calc(15px*var(--k));top:calc(17px*var(--k));padding:calc(2px*var(--k)) calc(6px*var(--k));border-radius:calc(4px*var(--k));color:#fff;font:600 calc(12px*var(--k))/1.2 system-ui,sans-serif;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.3)}',
+    '.br-cursor .ibeam{display:none;transform:translate(-50%,-50%)}',
+    '.br-cursor.text .ibeam{display:block}',
+    '.br-cursor.text .arrow{display:none}',
+    '.br-box.field{border-color:rgba(37,99,235,.55);background:none}',
+    '.br-box.ghost{border-style:dashed;background:rgba(59,130,246,.12)}',
+    '.br-box>.br-chip{position:absolute;left:0;top:0;transform:translateY(calc(-100% - 3px*var(--k)))}',
+    '.br-scan{height:calc(2px*var(--k));background:#60a5fa;box-shadow:0 0 calc(10px*var(--k)) #60a5fa}',
+    '.br-gone{display:none!important}',
+    '.br-old.sel{background:rgba(37,99,235,.3)}'
+  ].join('\n');
+
+  /* ---------- configuration ---------- */
+
+  var params = new URLSearchParams(location.search);
+  var CONFIG = Object.assign({}, DEFAULTS, window.BUILDREEL || {});
+  ['page', 'url', 'prompt', 'view', 'lang'].forEach(function (k) { if (params.get(k)) CONFIG[k] = params.get(k); });
+  if (params.get('speed')) CONFIG.speed = Number(params.get('speed'));
+  if (params.get('tempo')) CONFIG.tempo = Number(params.get('tempo'));
+  if (params.get('loop')) CONFIG.loop = params.get('loop') === '1';
+  if (params.get('details')) CONFIG.details = params.get('details') === '1';
+
+  var lang = TEXT[CONFIG.lang] ? CONFIG.lang : /^it\b/i.test(navigator.language || '') ? 'it' : 'en';
+  var T = TEXT[lang];
+  document.documentElement.lang = lang;
+
+  var $ = function (id) { return document.getElementById(id); };
+  var iframe = $('page'), screenEl = $('screen'), device = $('device'), preview = $('preview'), app = $('app');
+
+  var view = CONFIG.view === 'mobile' || CONFIG.view === 'desktop' ? CONFIG.view : innerHeight > innerWidth ? 'mobile' : 'desktop';
+  // rate is the button (1x, 2x, 4x); speed is what the timings use
+  var tempo = CONFIG.tempo > 0 ? CONFIG.tempo : 1;
+  var rate = [1, 2, 4].indexOf(CONFIG.speed) >= 0 ? CONFIG.speed : 1;
+  var speed = rate * tempo;
+  if (CONFIG.details) app.classList.add('details');
+
+  var run = 0, paused = false, running = false, elapsed = 0;
+  var W, H, baseW, S = 1;
+  var doc, win, overlay, total = 0, done = 0, lineNo = 0, colors = [], cursors = [], free = [], noise = [];
+  var camera = { y: 0, on: false };
+
+  $('replay').textContent = T.replay;
+  $('details').textContent = T.details;
+  $('layers-label').textContent = T.layers;
+  $('t-agents-title').textContent = T.agentsTitle;
+  $('url').textContent = CONFIG.url || CONFIG.page;
+
+  /* ---------- time, pause, speed ---------- */
+
+  function Stop() {}
+
+  function wait(ms, r) {
+    return new Promise(function (ok, ko) {
+      var t = 0, before = performance.now();
+      (function step(now) {
+        if (r !== run) return ko(new Stop());
+        if (!paused) t += (now - before) * speed;
+        before = now;
+        if (t >= ms) ok(); else requestAnimationFrame(step);
+      })(before);
+    });
+  }
+
+  function rand(a, b) { return a + Math.random() * (b - a); }
+  function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+
+  function mmss(ms) {
+    var s = Math.floor(ms / 1000);
+    return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+  }
+
+  (function clock() {
+    var before = performance.now();
+    (function step(now) {
+      if (running && !paused) elapsed += now - before;
+      before = now;
+      $('clock').textContent = mmss(elapsed);
+      requestAnimationFrame(step);
+    })(before);
+  })();
+
+  /* ---------- preview size ---------- */
+
+  function setView() {
+    device.classList.toggle('mobile', view === 'mobile');
+    W = baseW = view === 'mobile' ? 390 : 1366;
+    H = view === 'mobile' ? 844 : 768;
+    $('view').textContent = view === 'mobile' ? T.desktop : T.mobile;
+    measure();
+  }
+
+  function measure() {
+    var cs = getComputedStyle(preview);
+    var aw = preview.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    var ah = preview.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+    var extraW = view === 'mobile' ? 24 : 2, extraH = view === 'mobile' ? 24 : 36;
+    S = Math.max(.1, Math.min(1, (aw - extraW) / baseW, (ah - extraH) / H));
+    resize();
+  }
+
+  function resize() {
+    screenEl.style.width = W * S + 'px';
+    screenEl.style.height = H * S + 'px';
+    iframe.style.width = W + 'px';
+    iframe.style.height = H + 'px';
+    iframe.style.transform = 'scale(' + S + ')';
+    if (overlay) overlay.style.setProperty('--k', String(1 / S));
+  }
+
+  addEventListener('resize', measure);
+
+  /* ---------- bar, panel, editor ---------- */
+
+  var agentsLabel = T.agents;
+  function updateBar() {
+    var n = running && done ? cursors.length - free.length : cursors.length;
+    $('n-agents').textContent = n;
+    $('agents-label').textContent = n === 1 ? agentsLabel.replace(T.agents, T.agent) : agentsLabel;
+    $('n-layers').textContent = done;
+    $('total-layers').textContent = total;
+    $('progress').style.width = (total ? done / total * 100 : 0) + '%';
+  }
+
+  function setAgentsLabel(text) { agentsLabel = text; updateBar(); }
+
+  // The tool of the latest job, like the active tool in a design app; the agent's tag says what it is doing
+  function setTool(name, i) {
+    $('tool').textContent = name ? T.tools[name] : '';
+    if (i != null) cursors[i].querySelector('.br-tag b').textContent = ' · ' + T.acts[name];
+  }
+
+  function log(name, color, text, outcome) {
+    var li = document.createElement('li');
+    var b = document.createElement('b');
+    b.style.setProperty('--c', color);
+    b.textContent = name + ' ';
+    li.appendChild(b);
+    li.appendChild(document.createTextNode(text));
+    if (outcome) {
+      var e = document.createElement('span');
+      e.className = outcome;
+      e.textContent = outcome === 'ok' ? '  ✓' : '  ✗';
+      li.appendChild(e);
+    }
+    var list = $('log');
+    list.appendChild(li);
+    while (list.children.length > 30) list.removeChild(list.firstChild);
+  }
+
+  function esc(s) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function highlight(s, kind) {
+    if (kind === 'md') return /^#/.test(s) ? '<i class="k">' + esc(s) + '</i>' : esc(s);
+    var re = /(<\/?[a-zA-Z][\w:-]*)|(\s[\w:-]+)(?==)|("[^"]*"?)/g, out = '', last = 0, m;
+    while ((m = re.exec(s))) {
+      out += esc(s.slice(last, m.index));
+      if (m[1]) out += '<i class="k">' + esc(m[1]) + '</i>';
+      else if (m[2]) out += '<i class="a">' + esc(m[2]) + '</i>';
+      else out += '<i class="s">' + esc(m[3]) + '</i>';
+      last = re.lastIndex;
+    }
+    return out + esc(s.slice(last));
+  }
+
+  var typingToken = 0;
+  function writeCode(file, who, color, text, kind, r) {
+    if (!app.classList.contains('details')) return Promise.resolve();
+    var mine = ++typingToken;
+    $('file').textContent = file;
+    $('who').textContent = who;
+    $('who').style.color = color;
+    var code = $('code');
+    var line = document.createElement('div');
+    line.className = 'line';
+    line.innerHTML = '<span class="n">' + (++lineNo) + '</span><span class="t"></span>';
+    code.appendChild(line);
+    while (code.children.length > 40) code.removeChild(code.firstChild);
+    var t = line.querySelector('.t'), i = 0, step = Math.max(1, Math.ceil(text.length / 30));
+    return (function next() {
+      if (mine !== typingToken) { t.innerHTML = highlight(text, kind); return Promise.resolve(); }
+      i = Math.min(text.length, i + step);
+      t.innerHTML = highlight(text.slice(0, i), kind) + (i < text.length ? '<span class="cur"></span>' : '');
+      if (i >= text.length) return Promise.resolve();
+      return wait(16, r).then(next, function () {});
+    })();
+  }
+
+  function sourceOf(el) {
+    var s = el.outerHTML.replace(/<br-c[^>]*>([^<]*)<\/br-c>/g, '$1').replace(/<\/?br-t>/g, '').replace(/ class="br-x"/g, '').replace(/ br-x/g, '').replace(/\s+/g, ' ');
+    if (s.length > 200) {
+      var m = s.match(/^<[^>]+>/);
+      s = (m ? m[0].slice(0, 170) : '') + ' … </' + el.tagName.toLowerCase() + '>';
+    }
+    return s;
+  }
+
+  /* ---------- overlay inside the page ---------- */
+
+  function makeNoise() {
+    noise = [];
+    for (var t = 0; t < 5; t++) {
+      var c = document.createElement('canvas');
+      c.width = c.height = 36;
+      var x = c.getContext('2d');
+      for (var i = 0; i < 9; i++) {
+        for (var j = 0; j < 9; j++) {
+          if (Math.random() < .55) continue;
+          x.globalAlpha = rand(.35, .9);
+          x.fillStyle = NOISE_COLORS[Math.floor(Math.random() * NOISE_COLORS.length)];
+          x.fillRect(i * 4, j * 4, 4, 4);
+        }
+      }
+      noise.push(c.toDataURL());
+    }
+  }
+
+  function rect(el) {
+    var r = el.getBoundingClientRect(), x1 = r.left, y1 = r.top, x2 = r.right, y2 = r.bottom;
+    // Parts of an SVG can extend past it (moving clouds, glows): measure them inside the SVG only
+    if (el.ownerSVGElement) {
+      var s = el.ownerSVGElement.getBoundingClientRect();
+      x1 = Math.max(x1, s.left); y1 = Math.max(y1, s.top); x2 = Math.min(x2, s.right); y2 = Math.min(y2, s.bottom);
+    }
+    return { x: x1 + win.scrollX, y: y1 + win.scrollY, w: Math.max(0, x2 - x1), h: Math.max(0, y2 - y1) };
+  }
+
+  function layer(cls, x, y, w, h) {
+    var d = doc.createElement('div');
+    d.className = cls;
+    d.style.left = x + 'px';
+    d.style.top = y + 'px';
+    if (w != null) { d.style.width = w + 'px'; d.style.height = h + 'px'; }
+    overlay.appendChild(d);
+    return d;
+  }
+
+  function fade(d, r) {
+    d.style.opacity = '0';
+    wait(320, r).then(function () { d.remove(); }, function () {});
+  }
+
+  function makeCursors(n) {
+    colors = [];
+    cursors = [];
+    free = [];
+    $('swarm').innerHTML = '';
+    $('faces').innerHTML = '';
+    for (var i = 0; i < n; i++) {
+      var hue = Math.round(i * 360 / n), col = 'hsl(' + hue + ' 85% 58%)';
+      // Yellow, green and cyan are light: dark text on their tags
+      var ink = hue >= 40 && hue <= 200 ? '#0b0f14' : '#fff';
+      colors.push(col);
+      var c = layer('br-cursor', 0, 0);
+      c.innerHTML = '<svg class="arrow" viewBox="0 0 13 13"><path d="M1 1l4.7 11 1.6-4.6L12 5.5z" fill="' + col + '" stroke="#fff" stroke-width="1.1" stroke-linejoin="round"/></svg>' +
+        '<svg class="ibeam" viewBox="0 0 13 13"><path d="M4 1.5h5M4 11.5h5M6.5 1.5v10" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M4 1.5h5M4 11.5h5M6.5 1.5v10" fill="none" stroke="' + col + '" stroke-width="1.4" stroke-linecap="round"/></svg>' +
+        // A name tag with the current job, like collaborators in a design tool
+        '<span class="br-tag" style="background:' + col + ';color:' + ink + '">✦ ' + T.agent.charAt(0).toUpperCase() + T.agent.slice(1) + ' ' + (i + 1) + '<b></b></span>';
+      c.style.opacity = '0';
+      cursors.push(c);
+      free.push(i);
+      var d = document.createElement('span');
+      d.style.setProperty('--c', col);
+      $('swarm').appendChild(d);
+      if (i < 5) {
+        var f = document.createElement('span');
+        f.className = 'face';
+        f.style.setProperty('--c', col);
+        $('faces').appendChild(f);
+      }
+    }
+  }
+
+  function move(i, x, y, duration) {
+    var c = cursors[i];
+    if (!c.dataset.onStage) {
+      // Enters from the bottom, from the agents bar, only when it has a job
+      c.dataset.onStage = '1';
+      c.style.transitionDuration = '0ms';
+      c.style.transform = 'translate(' + (win.innerWidth * rand(.35, .65)) + 'px,' + (win.scrollY + win.innerHeight + 10) + 'px)';
+      c.getBoundingClientRect();
+      duration = Math.max(duration, 380);
+    }
+    c.style.transitionDuration = (duration / speed) + 'ms';
+    c.style.transform = 'translate(' + x + 'px,' + y + 'px)';
+    c.style.opacity = '1';
+  }
+
+  function reveal(el, mode) {
+    el.classList.remove('br-x');
+    el.getAnimations({ subtree: true }).forEach(function (a) {
+      if (a.animationName && a.animationName !== 'brblink') { a.cancel(); a.play(); }
+    });
+    if (mode === 'wipe') {
+      el.animate([{ clipPath: 'inset(0 0 100% 0)' }, { clipPath: 'inset(0 0 0 0)' }], { duration: 480 / speed, easing: 'cubic-bezier(.3,.7,.2,1)' });
+    } else if (mode === 'fill') {
+      el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200 / speed, easing: 'ease-out' });
+    } else if (mode === 'grow') {
+      el.animate([{ clipPath: 'inset(0 100% 0 0)' }, { clipPath: 'inset(0 0 0 0)' }], { duration: 650 / speed, easing: 'cubic-bezier(.3,.7,.2,1)' });
+    } else if (mode === 'develop') {
+      // Like a print developing: a pale black-and-white scan from the top, then the colors
+      var pale = 'grayscale(1) contrast(1.8) brightness(1.5)';
+      el.animate([
+        { clipPath: 'inset(0 0 100% 0)', filter: pale },
+        { clipPath: 'inset(0 0 0 0)', filter: pale, offset: .55 },
+        { clipPath: 'inset(0 0 0 0)', filter: 'none' }
+      ], { duration: DEVELOP / speed, easing: 'ease-out' });
+    }
+  }
+
+  var DEVELOP = 1100;
+
+  function isImage(el) {
+    if (/^(img|picture|video|canvas)$/i.test(el.tagName)) return true;
+    var r = el.getBoundingClientRect();
+    return r.width * r.height > 4000 && /url\(/.test(win.getComputedStyle(el).backgroundImage);
+  }
+
+  // Thin and wide, like a progress or skill bar: it grows from the left
+  function isBar(rc) { return rc.h <= 16 && rc.w >= 60 && rc.w >= rc.h * 6; }
+
+  /* ---------- typed text ---------- */
+
+  // Wraps each letter (or word, in long texts) in an invisible element: the layout stays identical.
+  // Custom tags, not spans, so the page's own CSS (e.g. ".menu span") never matches them; one wrapper
+  // per text node keeps flex and grid containers unchanged.
+  function wrapTexts(layers, byEl) {
+    var walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT), nodes = [], n;
+    var hold = (CONFIG.holdUntilEnd || []).join(',');
+    while ((n = walker.nextNode())) {
+      if (!n.nodeValue.trim()) continue;
+      var p = n.parentElement;
+      if (!p || p.closest('script, style, svg, #br-overlay' + (hold ? ',' + hold : '')) || !p.getClientRects().length) continue;
+      for (var a = p; a && !byEl.has(a); a = a.parentElement) {}
+      if (a) nodes.push({ node: n, v: byEl.get(a) });
+    }
+    nodes.forEach(function (x) { x.v.length = (x.v.length || 0) + x.node.nodeValue.trim().length; });
+    nodes.forEach(function (x) {
+      var v = x.v, mode = v.length <= 60 ? 'letters' : 'words';
+      v.mode = mode;
+      v.text = (v.text || '') + x.node.nodeValue;
+      v.units = v.units || [];
+      v.wrapped = v.wrapped || [];
+      var wrapper = doc.createElement('br-t');
+      var parts = mode === 'letters' ? Array.from(x.node.nodeValue) : x.node.nodeValue.match(/\s+|\S+\s*/g);
+      parts.forEach(function (t) {
+        var u = doc.createElement('br-c');
+        u.className = 'br-c';
+        u.textContent = t;
+        v.units.push(u);
+        wrapper.appendChild(u);
+      });
+      v.wrapped.push({ original: x.node, wrapper: wrapper });
+      x.node.parentNode.replaceChild(wrapper, x.node);
+    });
+  }
+
+  function unwrap(v) {
+    (v.wrapped || []).forEach(function (w) {
+      if (w.wrapper.parentNode) w.wrapper.parentNode.replaceChild(w.original, w.wrapper);
+    });
+    v.wrapped = [];
+  }
+
+  function type(i, v, r) {
+    var u = v.units, n = 0, step = v.mode === 'letters' ? 24 : 55;
+    var caret = doc.createElement('br-caret');
+    caret.className = 'br-caret';
+    // A text box around the text being typed, and the I-beam instead of the arrow
+    var rc = rect(v.el), field = v.visual ? null : layer('br-box field', rc.x, rc.y, rc.w, rc.h);
+    cursors[i].classList.add('text');
+    setTool('text', i);
+    function finish() {
+      cursors[i].classList.remove('text');
+      if (field) fade(field, r);
+    }
+    return new Promise(function (ok, ko) {
+      var t = 0, before = performance.now();
+      (function key(now) {
+        if (r !== run) return ko(new Stop());
+        if (!paused) t += (now - before) * speed;
+        before = now;
+        var target = Math.min(u.length, Math.floor(t / step) + 1);
+        var prev = n;
+        while (n < target) { u[n].classList.add('br-v'); n++; }
+        if (n !== prev) {
+          var last = u[n - 1];
+          last.parentNode.insertBefore(caret, last.nextSibling);
+          if (n === 1 || n % 4 === 0) {
+            var cr = caret.getBoundingClientRect();
+            move(i, cr.left + win.scrollX + 3, cr.top + win.scrollY + cr.height * .55, 110);
+          }
+        }
+        if (n >= u.length) {
+          wait(120, r).then(function () { caret.remove(); unwrap(v); finish(); ok(); }, ko);
+        } else requestAnimationFrame(key);
+      })(before);
+    });
+  }
+
+  /* ---------- layers, frames and components ---------- */
+
+  function looksVisible(el) {
+    if (el.ownerSVGElement || /^(img|svg|input|textarea|select|hr|video|canvas|iframe|picture)$/i.test(el.tagName)) return true;
+    var cs = win.getComputedStyle(el);
+    if (cs.backgroundImage !== 'none' || cs.boxShadow !== 'none') return true;
+    if (!/rgba\(0, 0, 0, 0\)|transparent/.test(cs.backgroundColor)) return true;
+    return ['Top', 'Right', 'Bottom', 'Left'].some(function (side) {
+      return parseFloat(cs['border' + side + 'Width']) > 0 && cs['border' + side + 'Style'] !== 'none';
+    });
+  }
+
+  var SKIP_TAGS = /^(script|style|link|meta|template|noscript|br|defs|symbol|lineargradient|radialgradient|stop|clippath|mask|pattern|filter|option|title|desc)$/;
+
+  function collect() {
+    var body = doc.body, layers = [];
+    var hold = (CONFIG.holdUntilEnd || []).join(',');
+    body.querySelectorAll('*').forEach(function (el) {
+      if (SKIP_TAGS.test(el.tagName.toLowerCase())) return;
+      if (el.closest('#br-overlay, defs' + (hold ? ',' + hold : ''))) return;
+      // Inside an SVG only its direct children are layers, and not in tiny icons
+      var svg = el.ownerSVGElement;
+      if (svg && (el.parentNode !== svg || svg.getBoundingClientRect().width < 64)) return;
+      // Inline text with no look of its own (em, strong, plain links) is typed with its sentence, in order
+      if (!svg && win.getComputedStyle(el).display === 'inline' && !looksVisible(el)) return;
+      var rc = rect(el);
+      if (rc.w < 2 || rc.h < 2) return;
+      var depth = 0;
+      for (var p = el.parentElement; p && p !== body; p = p.parentElement) depth++;
+      layers.push({ el: el, rc: rc, depth: depth, visual: looksVisible(el), units: null });
+    });
+    return layers;
+  }
+
+  function visibleChildren(el) {
+    return [].filter.call(el.children, function (c) {
+      if (SKIP_TAGS.test(c.tagName.toLowerCase())) return false;
+      var r = c.getBoundingClientRect();
+      return r.width >= 2 && r.height >= 2;
+    });
+  }
+
+  function hasOwnText(el) {
+    return [].some.call(el.childNodes, function (n) { return n.nodeType === 3 && n.nodeValue.trim(); });
+  }
+
+  // Top-level blocks of the page: the children of body, and the children of main
+  function autoFrames() {
+    var tops = [];
+    visibleChildren(doc.body).forEach(function (el) {
+      if (el.tagName === 'MAIN') visibleChildren(el).forEach(function (c) { tops.push(c); });
+      else tops.push(el);
+    });
+    return tops;
+  }
+
+  // Inside each block: go down through single-child wrappers, then split into 2-8 components
+  function autoComponents(frames) {
+    var list = [];
+    frames.forEach(function (f) {
+      var el = f, kids = visibleChildren(el);
+      while (kids.length === 1 && !hasOwnText(el)) { el = kids[0]; kids = visibleChildren(el); }
+      if (kids.length >= 2 && kids.length <= 8) kids.forEach(function (k) { list.push(k); });
+      else list.push(el);
+    });
+    return list;
+  }
+
+  // A component is named after its heading; a list of cards (several headings) after its class
+  function nameOf(el) {
+    var heads = el.matches('h1,h2,h3,h4') ? [el] : el.querySelectorAll('h1,h2,h3,h4');
+    var t = heads.length === 1 && heads[0].textContent.trim();
+    if (t) return t.length > 34 ? t.slice(0, 33) + '…' : t;
+    var cls = typeof el.className === 'string' && el.className.trim().split(/\s+/)[0];
+    return el.id || cls || el.tagName.toLowerCase();
+  }
+
+  function organize(layers) {
+    var byEl = new Map();
+    layers.forEach(function (v) { byEl.set(v.el, v); });
+    var frameEls = CONFIG.frames ? CONFIG.frames.map(function (s) { return doc.querySelector(s); }).filter(Boolean) : autoFrames();
+    var frames = [];
+    frameEls.forEach(function (el) {
+      if (byEl.has(el)) { var v = byEl.get(el); v.frame = true; frames.push(v); }
+    });
+    var compEls = CONFIG.components ? CONFIG.components.map(function (s) { return doc.querySelector(s); }).filter(Boolean) : autoComponents(frameEls);
+    var components = compEls.map(function (el) { return { el: el, name: nameOf(el), items: [], done: 0, finished: false }; });
+    var silent = [];
+    layers.forEach(function (v) {
+      if (v.frame) return;
+      var comp = null;
+      for (var a = v.el; a && !comp; a = a.parentElement) {
+        comp = components.filter(function (c) { return c.el === a; })[0] || null;
+      }
+      if (comp) comp.items.push(v); else silent.push(v);
+    });
+    components = components.filter(function (c) { return c.items.length; });
+    components.forEach(function (c) {
+      c.rc = rect(c.el);
+      c.items.sort(function (a, b) { return a.depth - b.depth || a.rc.y - b.rc.y || a.rc.x - b.rc.x; });
+      findCopies(c);
+      for (var a = c.el; a; a = a.parentElement) {
+        var v = byEl.get(a);
+        if (v && v.frame) { c.frame = v; break; }
+      }
+    });
+    wrapTexts(layers, byEl);
+    return { frames: frames, components: components, silent: silent };
+  }
+
+  function takeAgent(r) {
+    if (free.length) return Promise.resolve(free.shift());
+    return wait(60, r).then(function () { return takeAgent(r); });
+  }
+
+  function release(i) {
+    // Job done: the cursor leaves the stage, no idle cursors left standing on the page
+    cursors[i].style.opacity = '0';
+    delete cursors[i].dataset.onStage;
+    free.push(i);
+    $('swarm').children[i].classList.remove('working');
+    updateBar();
+  }
+
+  function count() {
+    done++;
+    updateBar();
+  }
+
+  function build(i, v, comp, r) {
+    var rc = rect(v.el), bits = [];
+    follow(rc);
+    move(i, rc.x, rc.y, rand(160, 240));
+    return wait(rand(140, 220), r).then(function () {
+      if (!v.visual) {
+        v.el.classList.remove('br-x');
+        if (!v.units && rc.w * rc.h > 20000) {
+          // Container with no look of its own: just a dashed guide, like layout lines in a design tool
+          setTool('frame', i);
+          var g = layer('br-box guide', rc.x, rc.y, rc.w, rc.h);
+          wait(260, r).then(function () { fade(g, r); }, function () {});
+        }
+        return v.units ? type(i, v, r) : wait(60, r);
+      }
+      // Drag the box from the top-left corner, like in a design tool
+      var image = isImage(v.el), bar = !image && isBar(rc);
+      setTool(image ? 'image' : 'rect', i);
+      var box = layer('br-box', rc.x, rc.y, 0, 0);
+      bits.push(box);
+      var duration = clamp(140 + Math.sqrt(rc.w * rc.h) * .7, 160, 420);
+      box.animate([{ width: '0px', height: '0px' }, { width: rc.w + 'px', height: rc.h + 'px' }], { duration: duration / speed, easing: 'cubic-bezier(.3,.7,.2,1)', fill: 'forwards' });
+      move(i, rc.x + Math.min(rc.w, 700), rc.y + Math.min(rc.h, 400), duration);
+      return wait(duration, r).then(function () {
+        var wide = rc.w > 160;
+        var chip = layer('br-chip ' + (wide ? 'above' : 'below') + (Math.random() < .06 ? ' red' : ''), wide ? rc.x + rc.w : rc.x + rc.w / 2, wide ? rc.y : rc.y + rc.h);
+        chip.textContent = Math.round(rc.w) + ' × ' + Math.round(rc.h);
+        bits.push(chip);
+        if (rc.w > 36 && rc.h > 16) {
+          [[0, 0], [1, 0], [0, 1], [1, 1]].forEach(function (p) { bits.push(layer('br-handle', rc.x + rc.w * p[0], rc.y + rc.h * p[1])); });
+        }
+        var glitch = null;
+        if (!bar && rc.w * rc.h < 9000 && Math.random() < .6) {
+          glitch = layer('br-noise', rc.x, rc.y, rc.w, rc.h);
+          glitch.style.backgroundImage = 'url(' + noise[Math.floor(Math.random() * noise.length)] + ')';
+        }
+        return wait(rand(110, 200), r).then(function () {
+          if (glitch) fade(glitch, r);
+          if (image) {
+            // A scan line runs down the image while it develops
+            var scan = layer('br-scan', rc.x, rc.y);
+            scan.style.width = rc.w + 'px';
+            bits.push(scan);
+            reveal(v.el, 'develop');
+            scan.animate([{ top: rc.y + 'px' }, { top: rc.y + rc.h + 'px' }], { duration: DEVELOP * .55 / speed, easing: 'ease-out', fill: 'forwards' });
+            return wait(DEVELOP, r).then(function () { return v.units ? type(i, v, r) : null; });
+          }
+          reveal(v.el, bar ? 'grow' : 'fill');
+          return v.units ? type(i, v, r) : wait(bar ? 650 : rand(60, 140), r);
+        });
+      });
+    }).then(function () {
+      v.built = true;
+      bits.forEach(function (b) { fade(b, r); });
+      if (done % 3 === 0) writeCode('index.html', 'agent ' + (i + 1), colors[i], sourceOf(v.el), 'html', r);
+      count();
+    });
+  }
+
+  /* ---------- repeated cards: build the first, duplicate it, retype the copies ---------- */
+
+  function firstClass(el) {
+    return (typeof el.className === 'string' && el.className.trim().split(/\s+/)[0]) || '';
+  }
+
+  function inside(v, items) {
+    return items.filter(function (w) { return w !== v && v.el.contains(w.el); })
+      .sort(function (a, b) { return a.el.compareDocumentPosition(b.el) & 4 ? -1 : 1; });
+  }
+
+  // Siblings with the same tag, the same first class and the same inner layers are copies of the first one
+  function findCopies(comp) {
+    var items = comp.items, taken = new Set(), copies = [];
+    items.forEach(function (v) {
+      if (taken.has(v) || v.rc.w * v.rc.h < 3000) return;
+      var kind = v.el.tagName + '.' + firstClass(v.el);
+      var sibs = items.filter(function (w) {
+        return !taken.has(w) && w.el.parentElement === v.el.parentElement && w.el.tagName + '.' + firstClass(w.el) === kind;
+      });
+      if (sibs.length < 2 || sibs[0] !== v) return;
+      var trees = sibs.map(function (w) { return [w].concat(inside(w, items)); });
+      var shape = trees.map(function (t) { return t.map(function (w) { return w.el.tagName; }).join(); });
+      if (trees[0].length < 2 || shape.some(function (s) { return s !== shape[0]; })) return;
+      trees.forEach(function (t) { t.forEach(function (w) { taken.add(w); }); });
+      trees.slice(1).forEach(function (t) { copies.push({ items: t, template: trees[0] }); });
+    });
+    var copied = new Set();
+    copies.forEach(function (cp) { cp.items.forEach(function (w) { copied.add(w); }); });
+    comp.items = items.filter(function (w) { return !copied.has(w); });
+    comp.copies = copies;
+    comp.size = items.length;
+  }
+
+  function duplicate(i, cp, comp, r) {
+    var from = rect(cp.template[0].el), to = rect(cp.items[0].el);
+    follow(to);
+    setTool('copy', i);
+    move(i, from.x + from.w * .3, from.y + from.h * .3, rand(160, 240));
+    return wait(240, r).then(function () {
+      // A ghost of the first card slides to its new place
+      var ghost = layer('br-box ghost', from.x, from.y, from.w, from.h);
+      var chip = doc.createElement('div');
+      chip.className = 'br-chip';
+      chip.textContent = T.tools.copy;
+      ghost.appendChild(chip);
+      var duration = clamp(220 + Math.hypot(to.x - from.x, to.y - from.y) * .5, 300, 650);
+      ghost.animate([
+        { left: from.x + 'px', top: from.y + 'px', width: from.w + 'px', height: from.h + 'px' },
+        { left: to.x + 'px', top: to.y + 'px', width: to.w + 'px', height: to.h + 'px' }
+      ], { duration: duration / speed, easing: 'cubic-bezier(.3,.7,.2,1)', fill: 'forwards' });
+      move(i, to.x + to.w * .3, to.y + to.h * .3, duration);
+      return wait(duration, r).then(function () {
+        // The copy lands with the text of the first card
+        var texts = [];
+        cp.items.forEach(function (w, k) {
+          reveal(w.el, w.visual ? 'fill' : null);
+          if (!w.units) { w.built = true; count(); comp.done++; return; }
+          var old = (cp.template[k].text || '').replace(/\s+/g, ' ').trim();
+          w.wrapped.forEach(function (x) { x.wrapper.classList.add('br-gone'); });
+          var o = doc.createElement('br-old');
+          o.className = 'br-old';
+          o.textContent = old;
+          w.wrapped[0].wrapper.parentNode.insertBefore(o, w.wrapped[0].wrapper);
+          texts.push({ v: w, old: o });
+        });
+        return wait(260, r).then(function () {
+          fade(ghost, r);
+          // Then each text is selected and typed over
+          return texts.reduce(function (p, t) {
+            return p.then(function () {
+              var rc = t.old.getBoundingClientRect();
+              move(i, rc.left + win.scrollX, rc.top + win.scrollY + rc.height * .55, rand(120, 180));
+              t.old.classList.add('sel');
+              return wait(rand(160, 240), r).then(function () {
+                t.old.remove();
+                t.v.wrapped.forEach(function (x) { x.wrapper.classList.remove('br-gone'); });
+                return type(i, t.v, r);
+              }).then(function () { t.v.built = true; count(); comp.done++; });
+            });
+          }, Promise.resolve());
+        });
+      });
+    });
+  }
+
+  function buildComponent(comp, r) {
+    log(T.director, '#c084fc', T.component(comp.name, comp.size));
+    if (comp.frame && !comp.frame.done) {
+      comp.frame.done = true;
+      reveal(comp.frame.el, 'wipe');
+      count();
+    }
+    follow({ y: comp.rc.y, h: comp.rc.h });
+    // Copies go last and wait until their first card is built
+    var queue = comp.items.concat(comp.copies);
+    var crew = clamp(Math.ceil(queue.length / 3), 2, 7), agents = [];
+    function job(i, v) {
+      if (!v.template) return build(i, v, comp, r).then(function () { comp.done++; });
+      return (function ready() {
+        if (v.template.every(function (w) { return w.built; })) return duplicate(i, v, comp, r);
+        // No idle cursor standing on the page while it waits
+        cursors[i].style.opacity = '0';
+        delete cursors[i].dataset.onStage;
+        return wait(60, r).then(ready);
+      })();
+    }
+    for (var k = 0; k < crew; k++) {
+      agents.push(wait(k * rand(40, 90), r).then(function () { return takeAgent(r); }).then(function (i) {
+        $('swarm').children[i].classList.add('working');
+        updateBar();
+        return (function loop() {
+          var v = queue.shift();
+          if (!v) { release(i); return null; }
+          return job(i, v).then(loop);
+        })();
+      }));
+    }
+    return Promise.all(agents).then(function () { comp.finished = true; });
+  }
+
+  // Each component starts when the previous one is a third done: two or three crews work at once
+  function buildAll(components, r) {
+    var all = [];
+    return components.reduce(function (p, comp) {
+      return p.then(function () {
+        all.push(buildComponent(comp, r));
+        return (function hold() {
+          if (comp.finished || comp.done >= comp.size * .34) return null;
+          return wait(50, r).then(hold);
+        })();
+      });
+    }, Promise.resolve()).then(function () { return Promise.all(all); });
+  }
+
+  // The camera follows the front of the build: the newest work sits a little below the middle
+  // of the screen, and the page only scrolls down, a bit at every element
+  function follow(rc) {
+    camera.y = Math.max(camera.y, rc.y + Math.min(rc.h, H * .4) / 2 - H * .55);
+  }
+
+  // The camera follows the work with a smooth scroll
+  function startCamera(r) {
+    var before = performance.now();
+    (function step(now) {
+      if (r !== run || !camera.on) return;
+      var dt = now - before;
+      before = now;
+      if (!paused) {
+        var max = doc.documentElement.scrollHeight - win.innerHeight;
+        var target = clamp(camera.y, 0, max), y = win.scrollY;
+        if (Math.abs(target - y) > .5) win.scrollTo(0, y + (target - y) * Math.min(1, dt * speed * .0025));
+      }
+      requestAnimationFrame(step);
+    })(before);
+  }
+
+  /* ---------- final checks: real measurements of the page ---------- */
+
+  function animateWidth(from, to, duration, r) {
+    var t0 = null;
+    return new Promise(function (ok, ko) {
+      (function step(now) {
+        if (r !== run) return ko(new Stop());
+        if (t0 === null) t0 = now;
+        var p = Math.min(1, (now - t0) * speed / duration), e = p < .5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+        W = Math.round(from + (to - from) * e);
+        resize();
+        if (p < 1) requestAnimationFrame(step); else ok();
+      })(performance.now());
+    });
+  }
+
+  function checks(r) {
+    var results = [], RED = '#f87171';
+    setAgentsLabel(T.agents + ' · ' + T.checks);
+    // Cursors still sit at desktop coordinates: hide them so they do not fake the 320 px measurement
+    overlay.style.display = 'none';
+    win.scrollTo({ top: 0, behavior: 'instant' });
+    function probe(k, fn) {
+      return wait(300, r).then(fn).then(function (ok) {
+        results.push(ok);
+        log(T.checker, RED, T.check[k], ok ? 'ok' : 'ko');
+      });
+    }
+    return probe(0, function () {
+      return animateWidth(W, 320, 1100, r).then(function () { return wait(400, r); }).then(function () {
+        var ok = doc.documentElement.scrollWidth <= doc.documentElement.clientWidth;
+        return animateWidth(320, baseW, 900, r).then(function () { return ok; });
+      });
+    }).then(function () {
+      return probe(1, function () {
+        return [].every.call(doc.images, function (i) { return i.complete && i.naturalWidth > 0; });
+      });
+    }).then(function () {
+      return probe(2, function () { return doc.querySelectorAll('h1').length === 1; });
+    }).then(function () {
+      return probe(3, function () {
+        var origin = win.location.origin;
+        return doc.cookie === '' && win.performance.getEntriesByType('resource').every(function (e) { return e.name.indexOf(origin) === 0; });
+      });
+    }).then(function () {
+      return probe(4, function () {
+        return [].every.call(doc.images, function (i) { return i.hasAttribute('alt'); });
+      });
+    }).then(function () {
+      return results;
+    });
+  }
+
+  /* ---------- start ---------- */
+
+  function fail(text) {
+    var t = $('toast');
+    t.innerHTML = '<h2></h2><p></p>';
+    t.querySelector('h2').textContent = T.unavailable;
+    t.querySelector('p').textContent = text;
+    t.classList.add('show');
+  }
+
+  function prepare() {
+    doc = iframe.contentDocument;
+    win = iframe.contentWindow;
+    if (!doc || !doc.body) throw new Error('blocked');
+    doc.documentElement.style.scrollBehavior = 'auto';
+    if (typeof CONFIG.prepare === 'function') CONFIG.prepare(doc);
+    var style = doc.createElement('style');
+    style.textContent = FRAME_STYLE;
+    doc.head.appendChild(style);
+    var layers = collect();
+    if (!layers.length) throw new Error('empty');
+    var plan = organize(layers);
+    layers.forEach(function (v) { v.el.classList.add('br-x'); });
+    (CONFIG.holdUntilEnd || []).forEach(function (sel) { doc.querySelectorAll(sel).forEach(function (e) { e.classList.add('br-x'); }); });
+    overlay = doc.createElement('div');
+    overlay.id = 'br-overlay';
+    overlay.style.height = doc.documentElement.scrollHeight + 'px';
+    doc.body.appendChild(overlay);
+    resize();
+    plan.total = plan.frames.length + plan.components.reduce(function (n, c) { return n + c.size; }, 0);
+    return plan;
+  }
+
+  function start() {
+    var r = ++run;
+    var details = app.classList.contains('details');
+    var nAgents = CONFIG.agents[view] || (view === 'mobile' ? 20 : 30);
+    paused = false;
+    $('pause').innerHTML = '&#10074;&#10074;';
+    $('toast').classList.remove('show');
+    $('log').innerHTML = '';
+    $('code').innerHTML = '';
+    $('prompt').textContent = '';
+    $('send').classList.remove('pressed');
+    done = 0;
+    total = 0;
+    lineNo = 0;
+    elapsed = 0;
+    overlay = null;
+    cursors = [];
+    free = [];
+    running = false;
+    camera = { y: 0, on: false };
+    setView();
+    setTool('');
+    setAgentsLabel(T.ready);
+    makeNoise();
+
+    var plan;
+    var loaded = new Promise(function (ok) { iframe.onload = ok; });
+
+    // Check the page exists before loading it: a 404 page would otherwise be "built"
+    fetch(CONFIG.page, { method: 'HEAD', cache: 'no-store' }).then(function (res) {
+      if (!res.ok) throw new Error('missing');
+    }, function () { /* opened from disk: fetch fails, the iframe check below explains */ }).then(function () {
+      if (r !== run) throw new Stop();
+      iframe.src = CONFIG.page + (CONFIG.page.indexOf('?') < 0 ? '?' : '&') + 'buildreel=' + r;
+      return loaded;
+    }).then(function () {
+      if (r !== run) throw new Stop();
+      plan = prepare();
+      total = plan.total;
+      makeCursors(nAgents);
+      updateBar();
+      if (!details) return wait(500, r);
+      var i = 0, prompt = CONFIG.prompt || T.prompt;
+      return (function typePrompt() {
+        $('prompt').textContent = prompt.slice(0, ++i);
+        return i < prompt.length ? wait(22, r).then(typePrompt) : wait(300, r);
+      })().then(function () {
+        $('send').classList.add('pressed');
+        return T.plan(plan.frames.length, plan.components.length, total).reduce(function (p, line) {
+          return p.then(function () { writeCode('plan.md', T.director, '#c084fc', line, 'md', r); return wait(320, r); });
+        }, Promise.resolve());
+      });
+    }).then(function () {
+      running = true;
+      plan.silent.forEach(function (v) { v.el.classList.remove('br-x'); });
+      log(T.director, '#c084fc', T.started(nAgents, total, plan.components.length));
+      return wait(300, r);
+    }).then(function () {
+      setAgentsLabel(T.agents);
+      camera.on = true;
+      startCamera(r);
+      return buildAll(plan.components, r);
+    }).then(function () {
+      plan.frames.forEach(function (v) { if (!v.done) { v.done = true; reveal(v.el, 'wipe'); count(); } });
+      cursors.forEach(function (c) { c.style.opacity = '0'; });
+      setTool('');
+      camera.y = 0;
+      return wait(1400, r);
+    }).then(function () {
+      camera.on = false;
+      return checks(r);
+    }).then(function (results) {
+      (CONFIG.holdUntilEnd || []).forEach(function (sel) { doc.querySelectorAll(sel).forEach(function (e) { e.classList.remove('br-x'); }); });
+      overlay.remove();
+      running = false;
+      var ok = results.filter(Boolean).length;
+      $('n-agents').textContent = '✓';
+      agentsLabel = T.checks + ' ' + ok + '/' + results.length;
+      $('agents-label').textContent = agentsLabel;
+      log(T.director, '#c084fc', T.done + mmss(elapsed));
+      if (CONFIG.loop) return wait(4000, r).then(start);
+    }).catch(function (e) {
+      if (e instanceof Stop) return;
+      running = false;
+      var m = e && e.message;
+      fail(m === 'blocked' ? T.blocked : m === 'missing' ? T.missing + CONFIG.page : m === 'empty' ? T.empty : String(m || e));
+    });
+  }
+
+  /* ---------- controls ---------- */
+
+  $('view').onclick = function () { view = view === 'mobile' ? 'desktop' : 'mobile'; start(); };
+  $('speed').onclick = function () { rate = rate === 4 ? 1 : rate * 2; speed = rate * tempo; $('speed').textContent = rate + 'x'; };
+  $('details').onclick = function () { app.classList.toggle('details'); measure(); };
+  $('pause').onclick = function () {
+    paused = !paused;
+    $('pause').innerHTML = paused ? '&#9654;' : '&#10074;&#10074;';
+    $('pause').setAttribute('aria-label', paused ? 'Resume' : 'Pause');
+  };
+  $('replay').onclick = start;
+  $('close').onclick = function () { $('bar').classList.add('hidden'); };
+  addEventListener('keydown', function (e) {
+    if (e.key === ' ') { e.preventDefault(); $('pause').click(); }
+    if (e.key === 'r' || e.key === 'R') start();
+    if (e.key === 'h' || e.key === 'H') $('bar').classList.toggle('hidden');
+  });
+
+  $('speed').textContent = rate + 'x';
+  start();
+})();
+</script>
+</body>
+</html>

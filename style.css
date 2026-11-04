@@ -85,6 +85,9 @@ nav a:hover { color: var(--bone); }
 .hello-text { display: grid; gap: 16px; max-width: 680px; }
 .hello-text h2 { font-size: clamp(28px, 4vw, 40px); }
 .hello-text p { color: var(--dim); font-size: 18px; }
+.build-link { color: var(--sun); font-weight: 600; text-decoration: none; }
+.build-link:hover { text-decoration: underline; }
+.build-note { font-size: 13px; color: var(--dim); margin-left: 6px; }
 
 /* Lavori */
 .works { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
