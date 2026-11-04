@@ -85,9 +85,6 @@ nav a:hover { color: var(--bone); }
 .hello-text { display: grid; gap: 16px; max-width: 680px; }
 .hello-text h2 { font-size: clamp(28px, 4vw, 40px); }
 .hello-text p { color: var(--dim); font-size: 18px; }
-.build-link { color: var(--sun); font-weight: 600; text-decoration: none; }
-.build-link:hover { text-decoration: underline; }
-.build-note { font-size: 13px; color: var(--dim); margin-left: 6px; }
 
 /* Lavori */
 .works { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
@@ -204,6 +201,16 @@ footer { border-top: 1px solid var(--night-3); padding-block: 48px 32px; color: 
 .text-page h2 { font-size: 22px; margin-top: 18px; }
 .text-page p, .text-page li { color: var(--dim); }
 .text-page a { color: var(--bone); }
+
+/* Animazione BuildReel alla prima visita */
+html.intro-on { overflow: hidden; }
+.br-intro { position: fixed; inset: 0; z-index: 100; background: var(--night); transition: opacity .6s ease; }
+.br-intro iframe { display: block; width: 100%; height: 100%; border: 0; }
+.br-intro.out { opacity: 0; pointer-events: none; }
+.br-intro-skip, .br-intro-note { position: absolute; top: calc(12px + env(safe-area-inset-top, 0px)); padding: 7px 14px; border-radius: 999px; font: 600 13px var(--body); }
+.br-intro-skip { right: max(12px, env(safe-area-inset-right, 0px)); background: var(--sun); color: var(--sun-ink); border: 0; cursor: pointer; }
+.br-intro-skip:hover { background: #ffd47a; }
+.br-intro-note { left: max(12px, env(safe-area-inset-left, 0px)); background: rgba(15, 19, 36, .82); color: var(--dim); border: 1px solid var(--night-3); font-weight: 500; }
 
 /* Segnaposto da compilare prima della pubblicazione (vedi DA-COMPLETARE.md) */
 .todo { justify-self: start; background: var(--sun); color: var(--sun-ink); padding: 0 4px; border-radius: 3px; }

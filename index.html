@@ -29,6 +29,39 @@
 </script>
 </head>
 <body>
+<script>
+  // BuildReel: alla prima visita la pagina viene "costruita" davanti al visitatore da agenti AI simulati,
+  // poi l'animazione si dissolve e resta la pagina vera. Una volta per sessione; mai dentro l'animazione stessa.
+  (function () {
+    if (window.self !== window.top) return;
+    var replay = location.hash === '#costruzione';
+    try { if (!replay && sessionStorage.getItem('br-visto')) return; } catch (e) {}
+    if (!replay && window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    try { sessionStorage.setItem('br-visto', '1'); } catch (e) {}
+    var box = document.createElement('div');
+    box.className = 'br-intro';
+    box.innerHTML = '<iframe src="assets/buildreel.html" title="Animazione simulata: costruzione della pagina" tabindex="-1" aria-hidden="true"></iframe>'
+      + '<span class="br-intro-note">Animazione simulata</span>'
+      + '<button type="button" class="br-intro-skip">Salta l’animazione</button>';
+    document.body.appendChild(box);
+    document.documentElement.classList.add('intro-on');
+    var closed = false;
+    function close() {
+      if (closed) return;
+      closed = true;
+      box.classList.add('out');
+      document.documentElement.classList.remove('intro-on');
+      setTimeout(function () { box.remove(); }, 700);
+      if (location.hash === '#costruzione') history.replaceState(null, '', location.pathname);
+    }
+    box.querySelector('.br-intro-skip').addEventListener('click', close);
+    addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+    addEventListener('message', function (e) {
+      if (e.origin === location.origin && e.data === 'buildreel:done') setTimeout(close, 900);
+    });
+    setTimeout(close, 60000);
+  })();
+</script>
 <a class="skip" href="#contenuto">Vai al contenuto</a>
 
 <header class="top"><div class="wrap">
@@ -62,7 +95,6 @@
     <h2>Sono uno sviluppatore che capisce come lavora un'azienda.</h2>
     <p>Mi sono specializzato in applicazioni dell'intelligenza artificiale per la trasformazione digitale e costruisco app Android e web app su misura.</p>
     <p>Lavoro da solo, quindi parli sempre direttamente con lo sviluppatore della tua app.</p>
-    <p><a class="build-link" href="costruzione.html">Guarda questa pagina costruirsi da zero →</a> <span class="build-note">animazione simulata</span></p>
   </div>
 </div></section>
 
@@ -167,9 +199,17 @@
     <div><b>Giuseppe Trotta</b><span>App Android, web app e intelligenza artificiale per le aziende.</span></div>
     <div><b>Servizi</b><a href="#servizi">App Android</a><a href="#servizi">Web app</a><a href="#servizi">AI nei processi</a></div>
     <div><b>Contatti</b><a href="#contatti">Modulo di contatto</a><a href="https://www.linkedin.com/in/giuseppe-trotta-0851b6442" rel="noopener">LinkedIn</a></div>
-    <div><b>Dove lavoro</b><span>Salerno e provincia</span><span>In remoto in tutta Italia</span><a href="costruzione.html">Come nasce questa pagina</a></div>
+    <div><b>Dove lavoro</b><span>Salerno e provincia</span><span>In remoto in tutta Italia</span><a href="./#costruzione" id="rivedi">Rivedi l'animazione</a></div>
   </div>
   <div class="legal"><span>© 2026 Giuseppe Trotta</span><span><a href="privacy.html">Privacy e cookie</a></span></div>
 </div></footer>
+<script>
+  // "Rivedi l'animazione" nel footer: ricarica la pagina con l'animazione
+  document.getElementById('rivedi').addEventListener('click', function (e) {
+    e.preventDefault();
+    location.hash = 'costruzione';
+    location.reload();
+  });
+</script>
 </body>
 </html>
