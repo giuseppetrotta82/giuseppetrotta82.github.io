@@ -657,6 +657,7 @@
   var PIXEL_STEPS = [28, 18, 11, 6, 3];
   // While a photo loads, the camera stays on it and the next section waits
   var pins = [];
+  var textPins = [];   // texts being typed: they stop the camera, not the other crews
   var photos = [], photoBusy = false;   // photos of the page, and whether one is being placed right now
   function pixelate(el, rc, r) {
     var img = /^img$/i.test(el.tagName) ? el : el.querySelector && el.querySelector('img');
@@ -760,21 +761,26 @@
   }
 
   function type(i, v, r) {
-    var u = v.units, n = 0, step = v.mode === 'letters' ? 24 : 55;
+    var u = v.units, n = 0, step = v.mode === 'letters' ? 24 : 80;
     var caret = doc.createElement('br-caret');
     caret.className = 'br-caret';
     // A text box around the text being typed, and the I-beam instead of the arrow
     var rc = rect(v.el), field = v.visual ? null : layer('br-box field', rc.x, rc.y, rc.w, rc.h);
+    // While a text is typed the camera does not move past it
+    var pin = rc.y - H * .15;
+    textPins.push(pin);
+    var unpin = function () { var k = textPins.indexOf(pin); if (k >= 0) textPins.splice(k, 1); };
     cursors[i].classList.add('text');
     setTool('text', i);
     function finish() {
+      unpin();
       cursors[i].classList.remove('text');
       if (field) fade(field, r);
     }
     return new Promise(function (ok, ko) {
       var t = 0, before = performance.now();
       (function key(now) {
-        if (r !== run) return ko(new Stop());
+        if (r !== run) { unpin(); return ko(new Stop()); }
         if (!paused) t += (now - before) * speed;
         before = now;
         var target = Math.min(u.length, Math.floor(t / step) + 1);
@@ -1178,6 +1184,7 @@
         // The camera never goes past a photo that is not in place yet
         var want = camera.y;
         photos.forEach(function (v) { if (!v.built) want = Math.min(want, v.rc.y + v.rc.h / 2 - H * .5); });
+        pins.concat(textPins).forEach(function (p) { want = Math.min(want, p); });
         var target = clamp(want, 0, max), y = win.scrollY;
         if (target < y && !camera.back) target = y;   // never scroll back up while building
         if (Math.abs(target - y) > .5) win.scrollTo(0, y + (target - y) * Math.min(1, dt * speed * .0025));
@@ -1293,6 +1300,7 @@
     running = false;
     camera = { y: 0, on: false };
     pins = [];
+    textPins = [];
     photos = [];
     photoBusy = false;
     setView();

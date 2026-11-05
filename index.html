@@ -58,6 +58,7 @@
       + '<button type="button" class="br-intro-skip" data-umami-event="Animazione saltata">Salta l’animazione</button>';
     document.body.appendChild(box);
     document.documentElement.classList.add('intro-on');
+    window.brIntroOpen = true;
     var closed = false;
     function close() {
       if (closed) return;
@@ -65,6 +66,8 @@
       box.classList.add('out');
       document.documentElement.classList.remove('intro-on');
       setTimeout(function () { box.remove(); }, 700);
+      window.brIntroOpen = false;
+      dispatchEvent(new Event('br-intro-closed'));
       if (location.hash === '#costruzione') history.replaceState(null, '', location.pathname);
     }
     box.querySelector('.br-intro-skip').addEventListener('click', close);
@@ -219,6 +222,76 @@
   </div>
   <div class="legal"><span>© 2026 Giuseppe Trotta</span><span><a href="privacy.html">Privacy e cookie</a></span></div>
 </div></footer>
+<script>
+  // Foto dei progetti: quando arrivano sullo schermo si caricano da pixellate a nitide, una dopo l'altra,
+  // da sinistra a destra e riga per riga (l'ordine delle schede nella pagina). Senza JavaScript, con il
+  // movimento ridotto o dentro l'animazione BuildReel le foto sono semplicemente visibili.
+  (function () {
+    if (window.self !== window.top || !('IntersectionObserver' in window)) return;
+    if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var imgs = [].slice.call(document.querySelectorAll('.works .stage img'));
+    imgs.forEach(function (img) { img.classList.add('px-wait'); });
+    var STEPS = [24, 14, 8, 4, 2], STEP_MS = 110, GAP_MS = 380;
+    var seen = new Set(), next = 0, lastStart = 0;
+
+    function pixelIn(img) {
+      var ready = img.complete && img.naturalWidth ? Promise.resolve() : (img.decode ? img.decode().catch(function () {}) : Promise.resolve());
+      ready.then(function () {
+        var w = img.offsetWidth, h = img.offsetHeight, cs = getComputedStyle(img);
+        var c = document.createElement('canvas');
+        c.className = 'px-canvas';
+        c.width = w; c.height = h;
+        c.style.left = img.offsetLeft + 'px'; c.style.top = img.offsetTop + 'px';
+        c.style.width = w + 'px'; c.style.height = h + 'px';
+        c.style.borderRadius = cs.borderRadius;
+        img.parentNode.appendChild(c);
+        var ctx = c.getContext('2d'), px = function (k) { return parseFloat(cs[k]) || 0; };
+        var bx = px('borderLeftWidth'), by = px('borderTopWidth'), ix = bx + px('paddingLeft'), iy = by + px('paddingTop');
+        var iw = w - ix - px('borderRightWidth') - px('paddingRight'), ih = h - iy - px('borderBottomWidth') - px('paddingBottom');
+        var bg = cs.backgroundColor, clear = /rgba\(0, 0, 0, 0\)|transparent/.test(bg);
+        var small = document.createElement('canvas'), sctx = small.getContext('2d');
+        function frame(block) {
+          small.width = Math.max(1, Math.round(iw / block)); small.height = Math.max(1, Math.round(ih / block));
+          sctx.drawImage(img, 0, 0, small.width, small.height);
+          ctx.clearRect(0, 0, w, h);
+          if (bx || by) { ctx.fillStyle = cs.borderTopColor; ctx.fillRect(0, 0, w, h); }
+          ctx.fillStyle = clear ? '#0a0d1a' : bg;
+          ctx.fillRect(bx, by, w - bx - px('borderRightWidth'), h - by - px('borderBottomWidth'));
+          ctx.imageSmoothingEnabled = false;
+          ctx.drawImage(small, ix, iy, iw, ih);
+        }
+        STEPS.forEach(function (b, k) { setTimeout(function () { frame(b); }, k * STEP_MS); });
+        setTimeout(function () {
+          img.classList.remove('px-wait');
+          c.classList.add('px-out');
+          setTimeout(function () { c.remove(); }, 400);
+        }, STEPS.length * STEP_MS);
+      });
+    }
+
+    // Una foto parte solo dopo quelle che la precedono, a distanza di GAP_MS l'una dall'altra
+    function pump() {
+      while (next < imgs.length && seen.has(imgs[next])) {
+        var img = imgs[next++], at = Math.max(Date.now(), lastStart + GAP_MS);
+        lastStart = at;
+        setTimeout(pixelIn.bind(null, img), at - Date.now());
+      }
+    }
+    function start() {
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (!e.isIntersecting) return;
+          // Una foto vista fa partire anche quelle prima di lei, rimaste sopra
+          for (var k = 0; k <= imgs.indexOf(e.target); k++) seen.add(imgs[k]);
+          io.unobserve(e.target);
+        });
+        pump();
+      }, { threshold: .35 });
+      imgs.forEach(function (img) { io.observe(img); });
+    }
+    if (window.brIntroOpen) addEventListener('br-intro-closed', start, { once: true }); else start();
+  })();
+</script>
 <script>
   // "Rivedi l'animazione" nel footer: ricarica la pagina con l'animazione
   document.getElementById('rivedi').addEventListener('click', function (e) {
