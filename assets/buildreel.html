@@ -916,9 +916,11 @@
         if (v && v.frame) { c.frame = v; break; }
       }
     });
-    // Photos go in from the top of the page down, one after the other
+    // Photos go in reading order, one after the other: row by row (the row of the card that holds
+    // them), and from left to right inside a row
+    var rowOf = function (v) { return v.group && !v.group.self ? v.group : { y: Math.round(v.rc.y), x: Math.round(v.rc.x) }; };
     photos = layers.filter(function (v) { return v.visual && isImage(v.el); })
-      .sort(function (a, b) { return a.rc.y - b.rc.y || a.rc.x - b.rc.x; });
+      .sort(function (a, b) { var ra = rowOf(a), rb = rowOf(b); return ra.y - rb.y || ra.x - rb.x; });
     wrapTexts(layers, byEl);
     return { frames: frames, components: components, silent: silent };
   }
