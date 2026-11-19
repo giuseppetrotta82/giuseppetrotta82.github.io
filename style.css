@@ -102,6 +102,8 @@ nav a:hover { color: var(--bone); }
 .work.featured { grid-column: 1 / -1; }
 /* Il lume: fiammella che tremola con piccole faville che salgono, davanti alla mappa dei ricordi sfumata */
 .stage.lume { padding: 0; background: radial-gradient(circle at 50% 46%, rgba(12,13,17,.15) 0, rgba(12,13,17,.55) 38%, rgba(12,13,17,.92) 75%), url("img/progetti/lumen-sfondo.jpg") center / cover, #0c0d11; }
+/* Fascetta diagonale "Novità" nell'angolo in alto a sinistra della scheda */
+.ribbon { position: absolute; z-index: 2; top: 26px; left: -46px; width: 190px; padding: 7px 0; transform: rotate(-45deg); background: var(--sun); color: var(--sun-ink); text-align: center; font: 700 13px var(--body); letter-spacing: .14em; text-transform: uppercase; box-shadow: 0 6px 18px rgba(0,0,0,.45); }
 .lume-halo { position: absolute; left: 50%; top: 44%; width: min(75%, 480px); aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 50%; background: radial-gradient(circle, rgba(255,214,150,.35), rgba(243,217,177,0) 65%); }
 .lume-icon { position: absolute; left: 50%; top: 44%; width: min(36%, 220px); transform: translate(-50%, -50%); border-radius: 22%; overflow: visible; box-shadow: 0 0 0 1px rgba(255,255,255,.08), 0 30px 80px rgba(0,0,0,.6), 0 0 120px rgba(255,200,120,.25); }
 .lume-name { position: absolute; left: 0; right: 0; top: 76%; text-align: center; font: 600 clamp(26px, 4vw, 40px) var(--display); letter-spacing: -.02em; color: #f6efe4; }
