@@ -146,7 +146,24 @@
   </div>
   <div class="works">
     <article class="work featured">
-      <div class="stage lume"><img class="shot landscape" src="img/progetti/lumen.jpg" width="854" height="640" alt="La fiammella di Lumen davanti alla mappa dei ricordi" loading="lazy"></div>
+      <div class="stage lume" role="img" aria-label="La fiammella di Lumen, accesa, davanti alla mappa dei ricordi">
+        <span class="lume-halo"></span>
+        <svg class="lume-icon" viewBox="0 0 64 64" aria-hidden="true">
+          <defs>
+            <radialGradient id="lume-g" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#fff7ec"/><stop offset=".45" stop-color="#f3d9b1" stop-opacity=".55"/><stop offset="1" stop-color="#f3d9b1" stop-opacity="0"/></radialGradient>
+            <linearGradient id="lume-f" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff7ec"/><stop offset="1" stop-color="#e9a95b"/></linearGradient>
+          </defs>
+          <rect width="64" height="64" rx="14" fill="#0c0d11"/>
+          <circle cx="32" cy="36" r="20" fill="url(#lume-g)" opacity=".7"/>
+          <path class="lume-flame" fill="url(#lume-f)" d="M32 10 C40 22 44 30 44 38 C44 44.6 38.6 50 32 50 C25.4 50 20 44.6 20 38 C20 30 25 22 32 10Z"/>
+          <path fill="#0c0d11" opacity=".25" d="M32 30 C35 34 36 37 36 39 C36 41.2 34.2 43 32 43 C29.8 43 28 41.2 28 39 C28 37 29 34 32 30Z"/>
+          <circle class="lume-spark s1" cx="30" cy="14" r="1.1"/>
+          <circle class="lume-spark s2" cx="34" cy="16" r="1.1"/>
+          <circle class="lume-spark s3" cx="32" cy="12" r="1.1"/>
+          <circle class="lume-spark s4" cx="29" cy="17" r="1.1"/>
+        </svg>
+        <span class="lume-name" aria-hidden="true">Lumen</span>
+      </div>
       <div class="work-body"><span class="cat"><b>AI</b>Web app · Telegram · Voce clonata</span><h3>Lumen</h3><p>Fa rivivere una persona cara che non c'è più. Impara dai suoi ricordi, dalle chat, dalle foto e dai vocali come parlava e chi era, e continua a crescere con le conversazioni che i familiari hanno ancora con lei.</p><p>Risponde con la sua voce clonata, manda videomessaggi e le foto di una volta, e riconosce chi c'è anche nelle foto scattate dopo. È come averla ancora accanto: si ricorda dei compleanni ed è premurosa come quando c'era.</p><p class="heart">Il progetto a cui tengo di più.</p><span class="tech">Python · FastAPI · Three.js · Groq · Fish Audio · Telegram · OpenCV</span></div>
     </article>
     <article class="work">
