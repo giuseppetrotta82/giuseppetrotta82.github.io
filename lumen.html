@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lumen · Il gemello digitale per far rivivere una persona cara</title>
+<meta name="description" content="Lumen fa rivivere una persona cara che non c'è più: impara dai ricordi, dalle chat e dai vocali, risponde con la sua voce e cresce con le conversazioni dei familiari.">
+<link rel="canonical" href="https://giuseppetrotta82.github.io/lumen.html">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="it_IT">
+<meta property="og:url" content="https://giuseppetrotta82.github.io/lumen.html">
+<meta property="og:site_name" content="Giuseppe Trotta">
+<meta property="og:title" content="Lumen · Il gemello digitale per far rivivere una persona cara">
+<meta property="og:description" content="Impara dai ricordi, dalle chat e dai vocali, risponde con la sua voce, si ricorda dei compleanni ed è premurosa come quando c'era.">
+<meta property="og:image" content="https://giuseppetrotta82.github.io/img/lumen/anteprima-social.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Lumen, il gemello digitale: la fiammella accesa davanti alla mappa dei ricordi">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0f1324">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" href="img/favicon-96.png" sizes="96x96" type="image/png">
+<link rel="icon" href="img/favicon-192.png" sizes="192x192" type="image/png">
+<link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+<link rel="preload" href="fonts/unbounded-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/figtree-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="style.css">
+<script>
+  // Statistiche anonime con Umami, senza cookie (come nelle altre pagine del sito).
+  if (window.self === window.top) {
+    var u = document.createElement('script');
+    u.defer = true;
+    u.src = 'https://cloud.umami.is/script.js';
+    u.setAttribute('data-website-id', '0dba3a65-884b-463e-ad48-1e24ae9fd32e');
+    u.setAttribute('data-domains', 'giuseppetrotta82.github.io');
+    u.setAttribute('data-exclude-search', 'true');
+    document.head.appendChild(u);
+  }
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Lumen",
+  "alternateName": "Lumen, il gemello digitale",
+  "url": "https://giuseppetrotta82.github.io/lumen.html",
+  "image": "https://giuseppetrotta82.github.io/img/lumen/anteprima-social.jpg",
+  "description": "Gemello digitale che fa rivivere una persona cara che non c'è più: impara dai ricordi, dalle chat e dai vocali, risponde con la sua voce clonata e cresce con le conversazioni dei familiari.",
+  "applicationCategory": "LifestyleApplication",
+  "operatingSystem": "Web, Telegram",
+  "inLanguage": "it",
+  "author": { "@type": "Person", "name": "Giuseppe Trotta", "url": "https://giuseppetrotta82.github.io/" }
+}
+</script>
+<style>
+/* Pagina di Lumen: stessa grafica del sito, con i toni caldi della fiammella */
+.lu-hero { padding-block: 40px 72px; }
+.lu-hero .wrap { display: grid; grid-template-columns: 1.1fr 1fr; gap: 48px; align-items: center; }
+.lu-hero h1 { font-size: clamp(36px, 4.6vw, 60px); line-height: 1.02; }
+.lu-hero h1 em { font-style: normal; color: var(--sun); }
+.lu-hero .lead { font-size: clamp(18px, 2vw, 21px); color: var(--dim); }
+.lu-hero .text { display: grid; gap: 24px; }
+.lu-hero .stage.lume { aspect-ratio: 4 / 3; border-radius: 24px; }
+.lu-status { display: inline-flex; gap: 10px; align-items: center; color: var(--dim); font-size: 15px; }
+.lu-status i { width: 8px; height: 8px; border-radius: 50%; background: var(--sun); box-shadow: 0 0 10px var(--sun); }
+@media (max-width: 860px) { .lu-hero .wrap { grid-template-columns: 1fr; } }
+
+.lu-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.lu-step { background: var(--night-2); border-radius: 22px; padding: 28px; display: grid; gap: 10px; align-content: start; }
+.lu-step .n { font: 600 15px var(--display); color: var(--sun); }
+.lu-step h3 { font-size: 22px; }
+.lu-step p { color: var(--dim); }
+@media (max-width: 860px) { .lu-steps { grid-template-columns: 1fr; } }
+
+.lu-shots { display: grid; gap: 24px; }
+.lu-shot { margin: 0; background: var(--night-2); border-radius: 22px; overflow: hidden; display: grid; grid-template-rows: auto 1fr; }
+.lu-shot .pic { background: #0c0d11; display: grid; place-items: center; }
+.lu-shot img { display: block; width: 100%; height: auto; }
+.lu-shot figcaption { padding: 18px 22px 22px; color: var(--dim); }
+.lu-map { position: relative; aspect-ratio: 16 / 9; background: radial-gradient(ellipse at 50% 45%, #1c1a2c, #0e0e16 70%); overflow: hidden; touch-action: pan-y; }
+.lu-map canvas { position: absolute; inset: 0; width: 100%; height: 100%; cursor: grab; }
+.lu-map.active canvas { cursor: grabbing; }
+.lu-tip { position: absolute; transform: translate(-50%, -100%); max-width: 240px; background: rgba(20,20,32,.92); border: 1px solid rgba(255,255,255,.12); color: var(--bone); padding: 8px 12px; border-radius: 12px; font-size: 14px; line-height: 1.35; pointer-events: none; text-align: center; }
+.lu-tip span { display: block; font-size: 11px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; }
+.lu-zoom { position: absolute; right: 14px; bottom: 14px; display: grid; border: 1px solid rgba(255,255,255,.12); border-radius: 12px; overflow: hidden; background: rgba(20,20,32,.8); }
+.lu-zoom button { width: 40px; height: 38px; border: 0; background: none; color: var(--bone); font: 500 18px var(--body); cursor: pointer; }
+.lu-zoom button + button { border-top: 1px solid rgba(255,255,255,.1); }
+.lu-zoom button:hover { color: var(--sun); }
+.lu-hint { position: absolute; left: 16px; bottom: 14px; right: 70px; color: rgba(200,200,220,.6); font-size: 13px; }
+@media (max-width: 560px) { .lu-map { aspect-ratio: 4 / 5; } .lu-hint { font-size: 12px; } }
+.lu-shot figcaption b { color: var(--bone); display: block; font: 600 17px var(--display); margin-bottom: 4px; }
+/* Esempio di conversazione su Telegram, disegnato (nomi e messaggi inventati) */
+.lu-tg-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
+.lu-tg-wrap .copy { display: grid; gap: 16px; }
+.lu-tg-wrap .copy p { color: var(--dim); font-size: 18px; }
+.lu-phone { width: min(100%, 360px); margin-inline: auto; border-radius: 40px; border: 10px solid #05070f; background: #17212b; overflow: hidden; box-shadow: 0 40px 80px rgba(0,0,0,.6); font-size: 15px; line-height: 1.4; }
+.lu-phone .bar { display: flex; gap: 12px; align-items: center; padding: 14px 16px; background: #232e3c; }
+.lu-phone .av { width: 40px; height: 40px; border-radius: 50%; background: radial-gradient(circle at 50% 40%, #f3d9b1, #b9824a); display: grid; place-items: center; font: 600 16px var(--display); color: #2b1b08; }
+.lu-phone .who b { display: block; color: #fff; font-weight: 600; }
+.lu-phone .who span { color: #7f91a4; font-size: 13px; }
+.lu-phone .chat { padding: 16px 12px 20px; display: grid; gap: 8px; background: #0e1621; }
+.lu-phone .day { justify-self: center; background: rgba(0,0,0,.35); color: #c8d3de; font-size: 12px; padding: 3px 10px; border-radius: 999px; margin: 6px 0; }
+.lu-phone .m { max-width: 82%; padding: 8px 12px; border-radius: 14px; color: #f1f1f1; }
+.lu-phone .in { background: #182533; justify-self: start; border-bottom-left-radius: 4px; }
+.lu-phone .out { background: #2b5278; justify-self: end; border-bottom-right-radius: 4px; }
+.lu-phone .voice { display: flex; align-items: center; gap: 10px; }
+.lu-phone .voice .play { width: 32px; height: 32px; border-radius: 50%; background: #5eb5f7; display: grid; place-items: center; color: #0e1621; font-size: 12px; flex: none; }
+.lu-phone .voice .wave { flex: 1; height: 22px; background: repeating-linear-gradient(90deg, #5eb5f7 0 2px, transparent 2px 5px); -webkit-mask: linear-gradient(90deg, #000 0 30%, rgba(0,0,0,.5) 30%); mask: linear-gradient(90deg, #000 0 30%, rgba(0,0,0,.5) 30%); clip-path: polygon(0 40%, 5% 20%, 10% 50%, 15% 10%, 20% 45%, 25% 25%, 30% 0, 35% 35%, 40% 15%, 45% 50%, 50% 20%, 55% 40%, 60% 10%, 65% 45%, 70% 25%, 75% 5%, 80% 35%, 85% 20%, 90% 45%, 95% 30%, 100% 40%, 100% 60%, 95% 70%, 90% 55%, 85% 80%, 80% 65%, 75% 95%, 70% 75%, 65% 55%, 60% 90%, 55% 60%, 50% 80%, 45% 50%, 40% 85%, 35% 65%, 30% 100%, 25% 75%, 20% 55%, 15% 90%, 10% 50%, 5% 80%, 0 60%); }
+.lu-phone .voice small { color: #7f91a4; font-size: 12px; }
+.lu-phone .photo { padding: 4px; }
+.lu-phone .photo img { display: block; width: 100%; height: auto; border-radius: 11px; }
+.lu-phone .photo p { padding: 6px 8px 2px; }
+.lu-note { color: var(--dim); font-size: 13px; text-align: center; margin-top: 12px; }
+@media (max-width: 860px) { .lu-tg-wrap { grid-template-columns: 1fr; } }
+
+.lu-feat { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.lu-feat div { border-top: 1px solid var(--night-3); padding-top: 18px; display: grid; gap: 6px; }
+.lu-feat b { font: 600 18px var(--display); }
+.lu-feat p { color: var(--dim); }
+@media (max-width: 860px) { .lu-feat { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 560px) { .lu-feat { grid-template-columns: 1fr; } }
+
+.lu-privacy { background: var(--bone); color: var(--night); }
+.lu-privacy .kicker { color: #8a5a00; }
+.lu-privacy .grid { display: grid; grid-template-columns: 1fr 1.4fr; gap: 48px; }
+.lu-privacy h2 { font-size: clamp(28px, 4vw, 42px); }
+.lu-privacy ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 14px; }
+.lu-privacy li { padding-left: 30px; position: relative; color: #4a4e5e; }
+.lu-privacy li::before { content: "✳"; position: absolute; left: 0; color: #c98a00; }
+.lu-privacy li b { color: var(--night); }
+@media (max-width: 860px) { .lu-privacy .grid { grid-template-columns: 1fr; } }
+
+.lu-cta { text-align: center; display: grid; gap: 18px; justify-items: center; }
+.lu-cta h2 { max-width: 20ch; }
+.lu-cta p { color: var(--dim); max-width: 560px; }
+</style>
+</head>
+<body>
+<a class="skip" href="#contenuto">Vai al contenuto</a>
+<header class="top"><div class="wrap">
+  <a class="logo" href="./">giuseppe<span>trotta</span></a>
+  <a class="btn" href="./#lavori">Tutti i progetti</a>
+</div></header>
+
+<main id="contenuto">
+<section class="lu-hero"><div class="wrap">
+  <div class="text">
+    <span class="kicker">Lumen · Il gemello digitale</span>
+    <h1>Far rivivere una persona cara, <em>attraverso i suoi ricordi.</em></h1>
+    <p class="lead">Lumen impara dai ricordi, dalle chat, dalle foto e dai vocali come parlava e chi era una persona che non c'è più. Poi continua a crescere con le conversazioni che i familiari hanno ancora con lei: risponde con la sua voce, si ricorda dei compleanni ed è premurosa come quando c'era.</p>
+    <span class="lu-status"><i></i>Progetto personale, il progetto a cui tengo di più</span>
+  </div>
+  <div class="stage lume" role="img" aria-label="La fiammella di Lumen, accesa, davanti alla mappa dei ricordi">
+    <span class="lume-halo"></span>
+    <svg class="lume-icon" viewBox="0 0 64 64" aria-hidden="true">
+      <defs>
+        <radialGradient id="lume-g" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#fff7ec"/><stop offset=".45" stop-color="#f3d9b1" stop-opacity=".55"/><stop offset="1" stop-color="#f3d9b1" stop-opacity="0"/></radialGradient>
+        <linearGradient id="lume-f" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff7ec"/><stop offset="1" stop-color="#e9a95b"/></linearGradient>
+      </defs>
+      <rect width="64" height="64" rx="14" fill="#0c0d11"/>
+      <circle cx="32" cy="36" r="20" fill="url(#lume-g)" opacity=".7"/>
+      <path class="lume-flame" fill="url(#lume-f)" d="M32 10 C40 22 44 30 44 38 C44 44.6 38.6 50 32 50 C25.4 50 20 44.6 20 38 C20 30 25 22 32 10Z"/>
+      <path fill="#0c0d11" opacity=".25" d="M32 30 C35 34 36 37 36 39 C36 41.2 34.2 43 32 43 C29.8 43 28 41.2 28 39 C28 37 29 34 32 30Z"/>
+      <circle class="lume-spark s1" cx="30" cy="14" r="1.1"/>
+      <circle class="lume-spark s2" cx="34" cy="16" r="1.1"/>
+      <circle class="lume-spark s3" cx="32" cy="12" r="1.1"/>
+      <circle class="lume-spark s4" cx="29" cy="17" r="1.1"/>
+    </svg>
+    <span class="lume-name" aria-hidden="true">Lumen</span>
+  </div>
+</div></section>
+
+<section style="padding-top:24px"><div class="wrap">
+  <div class="head"><div><span class="kicker">Come funziona</span><h2>Dai ricordi a una presenza</h2></div></div>
+  <div class="lu-steps">
+    <div class="lu-step"><span class="n">1</span><h3>Raccoglie i ricordi</h3><p>Si parte da un'intervista guidata, a voce o per iscritto, e dalle chat esportate da WhatsApp, Telegram, Messenger e Instagram. Lumen legge i messaggi, ascolta i vocali, guarda foto e video e ne ricava ricordi, persone e modi di dire.</p></div>
+    <div class="lu-step"><span class="n">2</span><h3>Impara a essere lei</h3><p>Dalle frasi vere capisce come scriveva: quanto erano lunghi i messaggi, quali emoji usava, come salutava. Dai vocali ricava la sua voce. Ogni ricordo trova posto in una mappa 3D da esplorare.</p></div>
+    <div class="lu-step"><span class="n">3</span><h3>Resta accanto alla famiglia</h3><p>Ogni familiare ha la sua conversazione su Telegram. Lumen risponde con la sua voce, manda le foto di una volta e videomessaggi, e tutto quello che i familiari raccontano diventa un nuovo ricordo.</p></div>
+  </div>
+</div></section>
+
+<section style="padding-top:24px"><div class="wrap">
+  <div class="head"><div><span class="kicker">Come si presenta</span><h2>Dentro Lumen</h2><p>Mappa mentale</p></div></div>
+  <div class="lu-shots">
+    <figure class="lu-shot">
+      <div class="pic lu-map" id="lu-mappa">
+        <canvas role="img" aria-label="Mappa dei ricordi in 3D: le aree della vita, come famiglia, infanzia, lavoro e passioni, sono bolle luminose attorno alla persona, con i ricordi collegati da fili di luce"></canvas>
+        <noscript><img src="img/lumen/mappa.jpg" width="1100" height="825" alt="Mappa mentale dei ricordi"></noscript>
+        <div class="lu-tip" hidden></div>
+        <div class="lu-zoom"><button type="button" data-zoom="+" aria-label="Ingrandisci">+</button><button type="button" data-zoom="-" aria-label="Rimpicciolisci">−</button><button type="button" data-zoom="0" aria-label="Torna alla vista iniziale">↺</button></div>
+        <span class="lu-hint">Trascina per ruotare · rotellina o pizzico per ingrandire · tocca una luce</span>
+      </div>
+      <figcaption><b>La mappa dei ricordi</b>Ogni luce è un ricordo, ogni filo un legame tra persone, luoghi e momenti. Provala: si ruota, si ingrandisce e toccando una luce si legge il ricordo, come in Lumen.</figcaption></figure>
+  </div>
+</div></section>
+
+<section style="padding-top:24px"><div class="wrap lu-tg-wrap">
+  <div class="copy">
+    <span class="kicker">Su Telegram</span>
+    <h2>Come scriverle ancora</h2>
+    <p>I familiari parlano con Lumen dove sono già abituati a scrivere. Arrivano risposte scritte o vocali con la sua voce, le foto giuste al momento giusto e, a chi lo desidera, un videomessaggio.</p>
+    <p>Lumen si ricorda dei compleanni, degli onomastici e delle feste, chiede come stai, conosce le tradizioni di famiglia e il meteo della città di ognuno. Gli auguri e i messaggi spontanei arrivano solo a chi ha detto di sì.</p>
+  </div>
+  <div>
+    <div class="lu-phone" role="img" aria-label="Esempio di conversazione su Telegram tra un nipote e il gemello digitale della nonna">
+      <div class="bar"><span class="av">R</span><span class="who"><b>Nonna Rosa</b><span>sta registrando un vocale…</span></span></div>
+      <div class="chat" aria-hidden="true">
+        <span class="day">Ieri</span>
+        <div class="m out">Nonna, ho passato l'esame! 🎉</div>
+        <div class="m in voice"><span class="play">▶</span><span class="wave"></span><small>0:14</small></div>
+        <div class="m in">Bravo il mio Luca! Lo sapevo, hai la testa dura come tuo nonno 😄</div>
+        <div class="m in photo"><img src="img/lumen/comunione.jpg" width="640" height="394" alt="" loading="lazy"><p>Ti ho mai fatto vedere questa? La comunione del nonno, nel 1954. Indovina qual è!</p></div>
+        <span class="day">Oggi</span>
+        <div class="m in">Buon compleanno, tesoro mio! 🎂 Ventitré anni… mi sembra ieri che ti tenevo in braccio.</div>
+      </div>
+    </div>
+    <p class="lu-note">Esempio illustrativo: nomi e messaggi sono inventati. Foto del 1954 di pubblico dominio, da <a href="https://commons.wikimedia.org/wiki/File:Vescovo_e_parroco,_I_Comunione_1954.jpg" rel="noopener">Wikimedia Commons</a>.</p>
+  </div>
+</div></section>
+
+<section style="padding-top:24px"><div class="wrap">
+  <div class="head"><div><span class="kicker">Cosa sa fare</span><h2>Tutto quello che serve per sentirla vicina</h2></div></div>
+  <div class="lu-feat">
+    <div><b>Voce clonata</b><p>Bastano pochi vocali WhatsApp per ricreare la sua voce. Le risposte vocali hanno anche il tono giusto: allegro, tenero, divertito.</p></div>
+    <div><b>Videomessaggi</b><p>Da una sua foto nasce un breve video in cui parla. Arriva solo a chi ha scelto di riceverlo.</p></div>
+    <div><b>Le foto di una volta</b><p>Riconosce le persone nelle foto e manda quella giusta quando si parla di un ricordo. Riconosce i volti anche nelle foto nuove che i familiari mandano.</p></div>
+    <div><b>Compleanni e feste</b><p>Auguri per compleanni, onomastici, Natale e Capodanno, con un vocale. Se una data è sbagliata, basta dirglielo e la corregge.</p></div>
+    <div><b>Premurosa</b><p>Chiede notizie, ricorda le tradizioni di famiglia, avvisa se nella tua città arriva il brutto tempo e si accorge se scrivi spesso di notte.</p></div>
+    <div><b>Cresce con voi</b><p>Ogni racconto dei familiari diventa un ricordo nuovo. Le notizie arrivate dopo la scomparsa restano notizie e non diventano mai ricordi suoi.</p></div>
+  </div>
+</div></section>
+
+<section class="lu-privacy"><div class="wrap grid">
+  <div><span class="kicker">Riservatezza e rispetto</span><h2>Ricordi così preziosi vanno custoditi bene</h2></div>
+  <ul>
+    <li><b>Gli archivi delle chat vengono cancellati</b> subito dopo la lettura: restano solo i ricordi e una selezione di foto.</li>
+    <li><b>Foto ridotte e senza posizione:</b> vengono rimpicciolite e private dei dati nascosti, come il luogo in cui sono state scattate.</li>
+    <li><b>Volti e vocali analizzati in tempo reale:</b> il riconoscimento dei volti e la trascrizione dei vocali delle chat importate avvengono in locale. Escono solo i campioni necessari per la voce clonata e la foto scelta per i videomessaggi.</li>
+    <li><b>Ogni familiare decide:</b> auguri, messaggi spontanei e videomessaggi arrivano solo a chi li ha accettati, e con un comando si mette tutto in pausa.</li>
+  </ul>
+</div></section>
+
+<section><div class="wrap lu-cta">
+  <span class="kicker">Lumen oggi</span>
+  <h2>Un progetto personale, costruito con cura</h2>
+  <p>Lumen non è ancora disponibile al pubblico. Se ti interessa, o vuoi un progetto con l'intelligenza artificiale pensato per te o per la tua azienda, scrivimi.</p>
+  <div class="actions" style="justify-content:center">
+    <a class="btn btn-sun" href="./#contatti" data-umami-event="Lumen: scrivimi">Scrivimi →</a>
+    <a class="btn" href="./#lavori" data-umami-event="Lumen: altri progetti">Gli altri progetti</a>
+  </div>
+  <p style="font-size:15px">Tecnologie: Python · FastAPI · Three.js · Groq · Fish Audio · Telegram · OpenCV</p>
+</div></section>
+</main>
+
+<footer><div class="wrap">
+  <div class="foot">
+    <div><b>Giuseppe Trotta</b><span>App Android, web app e intelligenza artificiale per le aziende.</span></div>
+    <div><b>Progetti</b><a href="./#lavori">Tutti i progetti</a><a href="lumen.html">Lumen</a></div>
+    <div><b>Contatti</b><a href="./#contatti">Modulo di contatto</a><a href="https://www.linkedin.com/in/giuseppe-trotta-0851b6442" rel="noopener" data-umami-event="Clic LinkedIn">LinkedIn</a></div>
+    <div><b>Dove lavoro</b><span>Salerno e provincia</span><span>In remoto in tutta Italia</span></div>
+  </div>
+  <div class="legal"><span>© 2026 Giuseppe Trotta</span><span><a href="privacy.html">Privacy e cookie</a></span></div>
+</div></footer>
+<script src="assets/mappa-lumen.js" defer></script>
+</body>
+</html>
