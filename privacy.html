@@ -23,6 +23,14 @@
     u.setAttribute('data-domains', 'giuseppetrotta82.github.io');
     u.setAttribute('data-exclude-search', 'true');
     document.head.appendChild(u);
+    // Cloudflare Web Analytics: anch'esso senza cookie, stessa regola (solo fuori dall'animazione)
+    if (location.hostname === 'giuseppetrotta82.github.io') {
+      var cf = document.createElement('script');
+      cf.type = 'module';
+      cf.src = 'https://static.cloudflareinsights.com/beacon.min.js';
+      cf.setAttribute('data-cf-beacon', '{"token": "210a8821b2b943499ca80351556585a0"}');
+      document.head.appendChild(cf);
+    }
   }
 </script>
 </head>
@@ -57,7 +65,7 @@
   <p>Puoi chiedere accesso, correzione o cancellazione dei dati, limitazione del trattamento, portabilità e opporti al trattamento scrivendomi con il <a href="index.html#contatti">modulo di contatto</a>. Puoi anche presentare reclamo al <a href="https://www.garanteprivacy.it/" rel="noopener">Garante per la protezione dei dati personali</a>.</p>
 
   <h2>Statistiche</h2>
-  <p>Per capire quante persone visitano il sito, da dove arrivano e quali pulsanti usano, il sito usa <b>Umami Cloud</b>, un servizio di statistiche che non usa cookie e, secondo quanto dichiara, non raccoglie dati che identificano il visitatore: i dati sono anonimi e aggregati (pagina vista, sito di provenienza, paese, tipo di dispositivo e browser). Non uso queste statistiche per pubblicità né per profilarti.</p>
+  <p>Per capire quante persone visitano il sito, da dove arrivano e quali pulsanti usano, il sito usa <b>Umami Cloud</b>, un servizio di statistiche che non usa cookie e, secondo quanto dichiara, non raccoglie dati che identificano il visitatore: i dati sono anonimi e aggregati (pagina vista, sito di provenienza, paese, tipo di dispositivo e browser). Uso anche <b>Cloudflare Web Analytics</b>, che allo stesso modo non usa cookie né raccoglie dati che identificano il visitatore e misura in forma aggregata le visite e la velocità delle pagine. Non uso queste statistiche per pubblicità né per profilarti.</p>
 
   <h2>Cookie</h2>
   <p>Questo sito non installa cookie né usa strumenti di pubblicità, e i caratteri tipografici sono ospitati sul sito stesso. Per questo non trovi il banner dei cookie. Il link a LinkedIn ti porta su un sito esterno, che ha le proprie regole.</p>

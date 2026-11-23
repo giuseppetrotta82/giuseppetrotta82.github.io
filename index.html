@@ -37,6 +37,14 @@
     u.setAttribute('data-domains', 'giuseppetrotta82.github.io');
     u.setAttribute('data-exclude-search', 'true');
     document.head.appendChild(u);
+    // Cloudflare Web Analytics: anch'esso senza cookie, stessa regola (solo fuori dall'animazione)
+    if (location.hostname === 'giuseppetrotta82.github.io') {
+      var cf = document.createElement('script');
+      cf.type = 'module';
+      cf.src = 'https://static.cloudflareinsights.com/beacon.min.js';
+      cf.setAttribute('data-cf-beacon', '{"token": "210a8821b2b943499ca80351556585a0"}');
+      document.head.appendChild(cf);
+    }
   }
 </script>
 <script type="application/ld+json">
